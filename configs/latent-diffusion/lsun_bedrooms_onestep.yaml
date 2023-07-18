@@ -1,0 +1,86 @@
+model:
+  base_learning_rate: 2.0e-05
+  target: ldm.models.diffusion.ddpm.LatentDiffusionPosteriorJSCC
+  params:
+    linear_start: 0.0015
+    linear_end: 0.0195
+    num_timesteps_cond: 1
+    log_every_t: 200
+    timesteps: 1000
+    first_stage_key: image
+    image_size: 64
+    channels: 3
+    denoising_mode: one_step
+    monitor: val/loss_simple_ema
+    unet_ckpt: "/home/ashri/latent-diffusion/models/ldm/lsun_beds256/unet.ckpt"
+    unet_config:
+      target: ldm.modules.diffusionmodules.openaimodel.UNetModel
+      params:
+        image_size: 64
+        in_channels: 3
+        out_channels: 3
+        model_channels: 224
+        attention_resolutions:
+        # note: this isn\t actually the resolution but
+        # the downsampling factor, i.e. this corresnponds to
+        # attention on spatial resolution 8,16,32, as the
+        # spatial reolution of the latents is 64 for f4
+        - 8
+        - 4
+        - 2
+        num_res_blocks: 2
+        channel_mult:
+        - 1
+        - 2
+        - 3
+        - 4
+        num_head_channels: 32
+    first_stage_config:
+      target: ldm.models.autoencoder.AutoEncoder
+      params:
+        monitor: "val/rec_loss"
+        checkpoint_path: "models/ldm/lsun_beds256/autoencoder.ckpt"
+        embed_dim: 3
+        n_embed: 8192
+        lossconfig:
+          target: torch.nn.MSELoss
+          
+        ddconfig:
+          double_z: False
+          z_channels: 3
+          resolution: 256
+          in_channels: 3
+          out_ch: 3
+          ch: 128
+          ch_mult: [1,2,4]  # num_down = len(ch_mult)-1
+          num_res_blocks: 2
+          attn_resolutions: []
+          dropout: 0.0
+    cond_stage_config: __is_unconditional__
+data:
+  target: main.DataModuleFromConfig
+  params:
+    batch_size: 12
+    num_workers: 4
+    wrap: false
+    train:
+      target: ldm.data.lsun.LSUNBedroomsTrainJSCC
+      params:
+        size: 256
+    validation:
+      target: ldm.data.lsun.LSUNBedroomsValidationJSCC
+      params:
+        size: 256
+
+
+lightning:
+  callbacks:
+    image_logger:
+      target: main.ImageLogger
+      params:
+        batch_frequency: 5000
+        max_images: 8
+        increase_log_steps: False
+
+  trainer:
+    benchmark: True
