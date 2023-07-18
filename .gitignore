@@ -1,0 +1,12 @@
+assets/
+images/
+latent_diffusion.egg-info/
+val_data_lsun/
+**/__pycache__/
+job_logs/
+data/lsun/
+**/*.zip
+**/*.ckpt
+_cache_*
+*.png
+src/
