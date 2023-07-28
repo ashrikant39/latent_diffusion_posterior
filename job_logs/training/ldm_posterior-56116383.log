@@ -1,0 +1,584 @@
+no change     /sw/pkgs/arc/python3.9-anaconda/2021.11/condabin/conda
+no change     /sw/pkgs/arc/python3.9-anaconda/2021.11/bin/conda
+no change     /sw/pkgs/arc/python3.9-anaconda/2021.11/bin/conda-env
+no change     /sw/pkgs/arc/python3.9-anaconda/2021.11/bin/activate
+no change     /sw/pkgs/arc/python3.9-anaconda/2021.11/bin/deactivate
+no change     /sw/pkgs/arc/python3.9-anaconda/2021.11/etc/profile.d/conda.sh
+no change     /sw/pkgs/arc/python3.9-anaconda/2021.11/etc/fish/conf.d/conda.fish
+no change     /sw/pkgs/arc/python3.9-anaconda/2021.11/shell/condabin/Conda.psm1
+no change     /sw/pkgs/arc/python3.9-anaconda/2021.11/shell/condabin/conda-hook.ps1
+no change     /sw/pkgs/arc/python3.9-anaconda/2021.11/lib/python3.9/site-packages/xontrib/conda.xsh
+no change     /sw/pkgs/arc/python3.9-anaconda/2021.11/etc/profile.d/conda.csh
+no change     /home/ashri/.bashrc
+No action taken.
+no change     /sw/pkgs/arc/python3.9-anaconda/2021.11/condabin/conda
+no change     /sw/pkgs/arc/python3.9-anaconda/2021.11/bin/conda
+no change     /sw/pkgs/arc/python3.9-anaconda/2021.11/bin/conda-env
+no change     /sw/pkgs/arc/python3.9-anaconda/2021.11/bin/activate
+no change     /sw/pkgs/arc/python3.9-anaconda/2021.11/bin/deactivate
+no change     /sw/pkgs/arc/python3.9-anaconda/2021.11/etc/profile.d/conda.sh
+no change     /sw/pkgs/arc/python3.9-anaconda/2021.11/etc/fish/conf.d/conda.fish
+no change     /sw/pkgs/arc/python3.9-anaconda/2021.11/shell/condabin/Conda.psm1
+no change     /sw/pkgs/arc/python3.9-anaconda/2021.11/shell/condabin/conda-hook.ps1
+no change     /sw/pkgs/arc/python3.9-anaconda/2021.11/lib/python3.9/site-packages/xontrib/conda.xsh
+no change     /sw/pkgs/arc/python3.9-anaconda/2021.11/etc/profile.d/conda.csh
+no change     /home/ashri/.bashrc
+No action taken.
+Global seed set to 23
+GPU available: True, used: True
+TPU available: False, using: 0 TPU cores
+IPU available: False, using: 0 IPUs
+Global seed set to 23
+Global seed set to 23
+Global seed set to 23
+Global seed set to 23
+initializing ddp: GLOBAL_RANK: 1, MEMBER: 2/4
+Global seed set to 23
+initializing ddp: GLOBAL_RANK: 0, MEMBER: 1/4
+Global seed set to 23
+initializing ddp: GLOBAL_RANK: 2, MEMBER: 3/4
+Global seed set to 23
+initializing ddp: GLOBAL_RANK: 3, MEMBER: 4/4
+----------------------------------------------------------------------------------------------------
+distributed_backend=nccl
+All DDP processes registered. Starting ddp with 4 processes
+----------------------------------------------------------------------------------------------------
+
+LOCAL_RANK: 0 - CUDA_VISIBLE_DEVICES: [0,1,2,3]
+LOCAL_RANK: 2 - CUDA_VISIBLE_DEVICES: [0,1,2,3]
+LOCAL_RANK: 3 - CUDA_VISIBLE_DEVICES: [0,1,2,3]
+LOCAL_RANK: 1 - CUDA_VISIBLE_DEVICES: [0,1,2,3]
+Set SLURM handle signals.
+Set SLURM handle signals.
+Set SLURM handle signals.
+Set SLURM handle signals.
+
+  | Name              | Type             | Params
+-------------------------------------------------------
+0 | model             | DiffusionWrapper | 274 M 
+1 | model_ema         | LitEma           | 0     
+2 | first_stage_model | AutoEncoder      | 55.3 M
+-------------------------------------------------------
+329 M     Trainable params
+0         Non-trainable params
+329 M     Total params
+1,317.417 Total estimated model params size (MB)
+----------------------------
+Max steps: 2000
+Channel SNR: 0
+----------------------------
+Running on GPUs 4
+LatentDiffusionPosteriorJSCC: Running in eps-prediction mode
+DiffusionWrapper has 274.06 M params.
+Keeping EMAs of 370.
+making attention of type 'vanilla' with 512 in_channels
+Working with z of shape (1, 3, 64, 64) = 12288 dimensions.
+making attention of type 'vanilla' with 512 in_channels
+Loading model from models/ldm/lsun_beds256/autoencoder.ckpt...
+Total Params: 55298206
+Total Trainable Params: 55298206
+Training LatentDiffusionPosteriorJSCC as an unconditional model.
+Monitoring val/loss_simple_ema as checkpoint metric.
+Merged modelckpt-cfg: 
+{'target': 'pytorch_lightning.callbacks.ModelCheckpoint', 'params': {'dirpath': '/nfs/turbo/coe-hunseok/ashri/lsun_data/loggings/ldm_all_models_iterative_2000/snr_0/2023-07-19T18-02-12_ldm_all_models_iterative/checkpoints', 'filename': '{epoch:06}', 'verbose': True, 'save_last': True, 'monitor': 'val/loss_simple_ema', 'save_top_k': 3}}
+#### Data #####
+train, LSUNBedroomsTrainJSCC, 3028042
+validation, LSUNBedroomsValidationJSCC, 5000
+accumulate_grad_batches = 1
+Setting learning rate to 1.28e-03 = 1 (accumulate_grad_batches) * 4 (num_gpus) * 16 (batchsize) * 2.00e-05 (base_lr)
+Project config
+model:
+  base_learning_rate: 2.0e-05
+  target: ldm.models.diffusion.ddpm.LatentDiffusionPosteriorJSCC
+  params:
+    linear_start: 0.0015
+    linear_end: 0.0195
+    num_timesteps_cond: 1
+    log_every_t: 200
+    timesteps: 1000
+    first_stage_key: image
+    image_size: 64
+    channels: 3
+    denoising_mode: iterative
+    train_encoder: true
+    train_decoder: true
+    train_model: true
+    monitor: val/loss_simple_ema
+    unet_ckpt: /home/ashri/latent-diffusion/models/ldm/lsun_beds256/unet.ckpt
+    unet_config:
+      target: ldm.modules.diffusionmodules.openaimodel.UNetModel
+      params:
+        image_size: 64
+        in_channels: 3
+        out_channels: 3
+        model_channels: 224
+        attention_resolutions:
+        - 8
+        - 4
+        - 2
+        num_res_blocks: 2
+        channel_mult:
+        - 1
+        - 2
+        - 3
+        - 4
+        num_head_channels: 32
+    first_stage_config:
+      target: ldm.models.autoencoder.AutoEncoder
+      params:
+        monitor: val/rec_loss
+        checkpoint_path: models/ldm/lsun_beds256/autoencoder.ckpt
+        embed_dim: 3
+        n_embed: 8192
+        lossconfig:
+          target: torch.nn.MSELoss
+        ddconfig:
+          double_z: false
+          z_channels: 3
+          resolution: 256
+          in_channels: 3
+          out_ch: 3
+          ch: 128
+          ch_mult:
+          - 1
+          - 2
+          - 4
+          num_res_blocks: 2
+          attn_resolutions: []
+          dropout: 0.0
+    cond_stage_config: __is_unconditional__
+    channel_snr_dB: 0
+data:
+  target: main.DataModuleFromConfig
+  params:
+    batch_size: 16
+    num_workers: 4
+    wrap: false
+    train:
+      target: ldm.data.lsun.LSUNBedroomsTrainJSCC
+      params:
+        size: 256
+        txt_file: /tmpssd/ashri/LSUN/bedrooms_train.txt
+        data_root: /tmpssd/ashri/LSUN/bedrooms/
+    validation:
+      target: ldm.data.lsun.LSUNBedroomsValidationJSCC
+      params:
+        size: 256
+        txt_file: /tmpssd/ashri/LSUN/bedrooms_val.txt
+        data_root: /tmpssd/ashri/LSUN/bedrooms/
+
+Lightning config
+callbacks:
+  image_logger:
+    target: main.ImageLogger
+    params:
+      batch_frequency: 5000
+      max_images: 8
+      increase_log_steps: false
+trainer:
+  benchmark: true
+  accelerator: ddp
+  gpus: 4
+  max_steps: 2000
+
+Validation sanity check: 0it [00:00, ?it/s]Validation sanity check:   0%|          | 0/2 [00:00<?, ?it/s]----------------------------
+Max steps: 2000
+Channel SNR: 0
+----------------------------
+Running on GPUs 4
+LatentDiffusionPosteriorJSCC: Running in eps-prediction mode
+DiffusionWrapper has 274.06 M params.
+Keeping EMAs of 370.
+making attention of type 'vanilla' with 512 in_channels
+Working with z of shape (1, 3, 64, 64) = 12288 dimensions.
+making attention of type 'vanilla' with 512 in_channels
+Loading model from models/ldm/lsun_beds256/autoencoder.ckpt...
+Total Params: 55298206
+Total Trainable Params: 55298206
+Training LatentDiffusionPosteriorJSCC as an unconditional model.
+Monitoring val/loss_simple_ema as checkpoint metric.
+Merged modelckpt-cfg: 
+{'target': 'pytorch_lightning.callbacks.ModelCheckpoint', 'params': {'dirpath': '/nfs/turbo/coe-hunseok/ashri/lsun_data/loggings/ldm_all_models_iterative_2000/snr_0/2023-07-19T18-02-28_ldm_all_models_iterative/checkpoints', 'filename': '{epoch:06}', 'verbose': True, 'save_last': True, 'monitor': 'val/loss_simple_ema', 'save_top_k': 3}}
+#### Data #####
+train, LSUNBedroomsTrainJSCC, 3028042
+validation, LSUNBedroomsValidationJSCC, 5000
+accumulate_grad_batches = 1
+Setting learning rate to 1.28e-03 = 1 (accumulate_grad_batches) * 4 (num_gpus) * 16 (batchsize) * 2.00e-05 (base_lr)
+----------------------------
+Max steps: 2000
+Channel SNR: 0
+----------------------------
+Running on GPUs 4
+LatentDiffusionPosteriorJSCC: Running in eps-prediction mode
+DiffusionWrapper has 274.06 M params.
+Keeping EMAs of 370.
+making attention of type 'vanilla' with 512 in_channels
+Working with z of shape (1, 3, 64, 64) = 12288 dimensions.
+making attention of type 'vanilla' with 512 in_channels
+Loading model from models/ldm/lsun_beds256/autoencoder.ckpt...
+Total Params: 55298206
+Total Trainable Params: 55298206
+Training LatentDiffusionPosteriorJSCC as an unconditional model.
+Monitoring val/loss_simple_ema as checkpoint metric.
+Merged modelckpt-cfg: 
+{'target': 'pytorch_lightning.callbacks.ModelCheckpoint', 'params': {'dirpath': '/nfs/turbo/coe-hunseok/ashri/lsun_data/loggings/ldm_all_models_iterative_2000/snr_0/2023-07-19T18-02-32_ldm_all_models_iterative/checkpoints', 'filename': '{epoch:06}', 'verbose': True, 'save_last': True, 'monitor': 'val/loss_simple_ema', 'save_top_k': 3}}
+#### Data #####
+train, LSUNBedroomsTrainJSCC, 3028042
+validation, LSUNBedroomsValidationJSCC, 5000
+accumulate_grad_batches = 1
+Setting learning rate to 1.28e-03 = 1 (accumulate_grad_batches) * 4 (num_gpus) * 16 (batchsize) * 2.00e-05 (base_lr)
+----------------------------
+Max steps: 2000
+Channel SNR: 0
+----------------------------
+Running on GPUs 4
+LatentDiffusionPosteriorJSCC: Running in eps-prediction mode
+DiffusionWrapper has 274.06 M params.
+Keeping EMAs of 370.
+making attention of type 'vanilla' with 512 in_channels
+Working with z of shape (1, 3, 64, 64) = 12288 dimensions.
+making attention of type 'vanilla' with 512 in_channels
+Loading model from models/ldm/lsun_beds256/autoencoder.ckpt...
+Total Params: 55298206
+Total Trainable Params: 55298206
+Training LatentDiffusionPosteriorJSCC as an unconditional model.
+Monitoring val/loss_simple_ema as checkpoint metric.
+Merged modelckpt-cfg: 
+{'target': 'pytorch_lightning.callbacks.ModelCheckpoint', 'params': {'dirpath': '/nfs/turbo/coe-hunseok/ashri/lsun_data/loggings/ldm_all_models_iterative_2000/snr_0/2023-07-19T18-02-24_ldm_all_models_iterative/checkpoints', 'filename': '{epoch:06}', 'verbose': True, 'save_last': True, 'monitor': 'val/loss_simple_ema', 'save_top_k': 3}}
+#### Data #####
+train, LSUNBedroomsTrainJSCC, 3028042
+validation, LSUNBedroomsValidationJSCC, 5000
+accumulate_grad_batches = 1
+Setting learning rate to 1.28e-03 = 1 (accumulate_grad_batches) * 4 (num_gpus) * 16 (batchsize) * 2.00e-05 (base_lr)
+Validation sanity check:  50%|█████     | 1/2 [00:11<00:11, 11.24s/it]Validation sanity check: 100%|██████████| 2/2 [00:12<00:00,  5.66s/it]                                                                      Global seed set to 23
+Global seed set to 23
+Global seed set to 23
+Global seed set to 23
+Training: -1it [00:00, ?it/s]Training:   0%|          | 0/47393 [00:00<00:01, 40721.40it/s]Epoch 0:   0%|          | 0/47393 [00:00<00:05, 8208.03it/s]  Traceback (most recent call last):
+  File "/home/ashri/latent-diffusion/main.py", line 766, in <module>
+    trainer.fit(model, data)
+  File "/home/ashri/.conda/envs/ldm/lib/python3.8/site-packages/pytorch_lightning/trainer/trainer.py", line 553, in fit
+    self._run(model)
+  File "/home/ashri/.conda/envs/ldm/lib/python3.8/site-packages/pytorch_lightning/trainer/trainer.py", line 918, in _run
+    self._dispatch()
+  File "/home/ashri/.conda/envs/ldm/lib/python3.8/site-packages/pytorch_lightning/trainer/trainer.py", line 986, in _dispatch
+    self.accelerator.start_training(self)
+  File "/home/ashri/.conda/envs/ldm/lib/python3.8/site-packages/pytorch_lightning/accelerators/accelerator.py", line 92, in start_training
+    self.training_type_plugin.start_training(trainer)
+  File "/home/ashri/.conda/envs/ldm/lib/python3.8/site-packages/pytorch_lightning/plugins/training_type/training_type_plugin.py", line 161, in start_training
+    self._results = trainer.run_stage()
+  File "/home/ashri/.conda/envs/ldm/lib/python3.8/site-packages/pytorch_lightning/trainer/trainer.py", line 996, in run_stage
+    return self._run_train()
+  File "/home/ashri/.conda/envs/ldm/lib/python3.8/site-packages/pytorch_lightning/trainer/trainer.py", line 1045, in _run_train
+    self.fit_loop.run()
+  File "/home/ashri/.conda/envs/ldm/lib/python3.8/site-packages/pytorch_lightning/loops/base.py", line 111, in run
+    self.advance(*args, **kwargs)
+  File "/home/ashri/.conda/envs/ldm/lib/python3.8/site-packages/pytorch_lightning/loops/fit_loop.py", line 200, in advance
+    epoch_output = self.epoch_loop.run(train_dataloader)
+  File "/home/ashri/.conda/envs/ldm/lib/python3.8/site-packages/pytorch_lightning/loops/base.py", line 111, in run
+    self.advance(*args, **kwargs)
+  File "/home/ashri/.conda/envs/ldm/lib/python3.8/site-packages/pytorch_lightning/loops/epoch/training_epoch_loop.py", line 130, in advance
+    batch_output = self.batch_loop.run(batch, self.iteration_count, self._dataloader_idx)
+  File "/home/ashri/.conda/envs/ldm/lib/python3.8/site-packages/pytorch_lightning/loops/batch/training_batch_loop.py", line 101, in run
+    super().run(batch, batch_idx, dataloader_idx)
+  File "/home/ashri/.conda/envs/ldm/lib/python3.8/site-packages/pytorch_lightning/loops/base.py", line 111, in run
+    self.advance(*args, **kwargs)
+  File "/home/ashri/.conda/envs/ldm/lib/python3.8/site-packages/pytorch_lightning/loops/batch/training_batch_loop.py", line 148, in advance
+    result = self._run_optimization(batch_idx, split_batch, opt_idx, optimizer)
+  File "/home/ashri/.conda/envs/ldm/lib/python3.8/site-packages/pytorch_lightning/loops/batch/training_batch_loop.py", line 202, in _run_optimization
+    self._optimizer_step(optimizer, opt_idx, batch_idx, closure)
+  File "/home/ashri/.conda/envs/ldm/lib/python3.8/site-packages/pytorch_lightning/loops/batch/training_batch_loop.py", line 396, in _optimizer_step
+    model_ref.optimizer_step(
+  File "/home/ashri/.conda/envs/ldm/lib/python3.8/site-packages/pytorch_lightning/core/lightning.py", line 1618, in optimizer_step
+    optimizer.step(closure=optimizer_closure)
+  File "/home/ashri/.conda/envs/ldm/lib/python3.8/site-packages/pytorch_lightning/core/optimizer.py", line 209, in step
+    self.__optimizer_step(*args, closure=closure, profiler_name=profiler_name, **kwargs)
+  File "/home/ashri/.conda/envs/ldm/lib/python3.8/site-packages/pytorch_lightning/core/optimizer.py", line 129, in __optimizer_step
+    trainer.accelerator.optimizer_step(optimizer, self._optimizer_idx, lambda_closure=closure, **kwargs)
+  File "/home/ashri/.conda/envs/ldm/lib/python3.8/site-packages/pytorch_lightning/accelerators/accelerator.py", line 296, in optimizer_step
+    self.run_optimizer_step(optimizer, opt_idx, lambda_closure, **kwargs)
+  File "/home/ashri/.conda/envs/ldm/lib/python3.8/site-packages/pytorch_lightning/accelerators/accelerator.py", line 303, in run_optimizer_step
+    self.training_type_plugin.optimizer_step(optimizer, lambda_closure=lambda_closure, **kwargs)
+  File "/home/ashri/.conda/envs/ldm/lib/python3.8/site-packages/pytorch_lightning/plugins/training_type/training_type_plugin.py", line 226, in optimizer_step
+    optimizer.step(closure=lambda_closure, **kwargs)
+  File "/home/ashri/.conda/envs/ldm/lib/python3.8/site-packages/torch/autograd/grad_mode.py", line 26, in decorate_context
+    return func(*args, **kwargs)
+  File "/home/ashri/.conda/envs/ldm/lib/python3.8/site-packages/torch/optim/adamw.py", line 65, in step
+    loss = closure()
+  File "/home/ashri/.conda/envs/ldm/lib/python3.8/site-packages/pytorch_lightning/loops/batch/training_batch_loop.py", line 236, in _training_step_and_backward_closure
+    result = self.training_step_and_backward(split_batch, batch_idx, opt_idx, optimizer, hiddens)
+  File "/home/ashri/.conda/envs/ldm/lib/python3.8/site-packages/pytorch_lightning/loops/batch/training_batch_loop.py", line 549, in training_step_and_backward
+    self.backward(result, optimizer, opt_idx)
+  File "/home/ashri/.conda/envs/ldm/lib/python3.8/site-packages/pytorch_lightning/loops/batch/training_batch_loop.py", line 590, in backward
+    result.closure_loss = self.trainer.accelerator.backward(result.closure_loss, optimizer, *args, **kwargs)
+  File "/home/ashri/.conda/envs/ldm/lib/python3.8/site-packages/pytorch_lightning/accelerators/accelerator.py", line 276, in backward
+    self.precision_plugin.backward(self.lightning_module, closure_loss, *args, **kwargs)
+  File "/home/ashri/.conda/envs/ldm/lib/python3.8/site-packages/pytorch_lightning/plugins/precision/precision_plugin.py", line 78, in backward
+    model.backward(closure_loss, optimizer, *args, **kwargs)
+  File "/home/ashri/.conda/envs/ldm/lib/python3.8/site-packages/pytorch_lightning/core/lightning.py", line 1481, in backward
+    loss.backward(*args, **kwargs)
+  File "/home/ashri/.conda/envs/ldm/lib/python3.8/site-packages/torch/tensor.py", line 221, in backward
+    torch.autograd.backward(self, gradient, retain_graph, create_graph)
+  File "/home/ashri/.conda/envs/ldm/lib/python3.8/site-packages/torch/autograd/__init__.py", line 130, in backward
+    Variable._execution_engine.run_backward(
+  File "/home/ashri/.conda/envs/ldm/lib/python3.8/site-packages/torch/autograd/function.py", line 89, in apply
+    return self._forward_cls.backward(self, *args)  # type: ignore
+  File "/home/ashri/latent-diffusion/ldm/modules/diffusionmodules/util.py", line 138, in backward
+    output_tensors = ctx.run_function(*shallow_copies)
+  File "/home/ashri/latent-diffusion/ldm/modules/diffusionmodules/openaimodel.py", line 322, in _forward
+    h = self.attention(qkv)
+  File "/home/ashri/.conda/envs/ldm/lib/python3.8/site-packages/torch/nn/modules/module.py", line 727, in _call_impl
+    result = self.forward(*input, **kwargs)
+  File "/home/ashri/latent-diffusion/ldm/modules/diffusionmodules/openaimodel.py", line 370, in forward
+    weight = th.softmax(weight.float(), dim=-1).type(weight.dtype)
+RuntimeError: CUDA out of memory. Tried to allocate 896.00 MiB (GPU 1; 44.40 GiB total capacity; 40.98 GiB already allocated; 659.31 MiB free; 42.46 GiB reserved in total by PyTorch)
+Traceback (most recent call last):
+  File "/home/ashri/latent-diffusion/main.py", line 766, in <module>
+    trainer.fit(model, data)
+  File "/home/ashri/.conda/envs/ldm/lib/python3.8/site-packages/pytorch_lightning/trainer/trainer.py", line 553, in fit
+    self._run(model)
+  File "/home/ashri/.conda/envs/ldm/lib/python3.8/site-packages/pytorch_lightning/trainer/trainer.py", line 918, in _run
+    self._dispatch()
+  File "/home/ashri/.conda/envs/ldm/lib/python3.8/site-packages/pytorch_lightning/trainer/trainer.py", line 986, in _dispatch
+    self.accelerator.start_training(self)
+  File "/home/ashri/.conda/envs/ldm/lib/python3.8/site-packages/pytorch_lightning/accelerators/accelerator.py", line 92, in start_training
+    self.training_type_plugin.start_training(trainer)
+  File "/home/ashri/.conda/envs/ldm/lib/python3.8/site-packages/pytorch_lightning/plugins/training_type/training_type_plugin.py", line 161, in start_training
+    self._results = trainer.run_stage()
+  File "/home/ashri/.conda/envs/ldm/lib/python3.8/site-packages/pytorch_lightning/trainer/trainer.py", line 996, in run_stage
+    return self._run_train()
+  File "/home/ashri/.conda/envs/ldm/lib/python3.8/site-packages/pytorch_lightning/trainer/trainer.py", line 1045, in _run_train
+    self.fit_loop.run()
+  File "/home/ashri/.conda/envs/ldm/lib/python3.8/site-packages/pytorch_lightning/loops/base.py", line 111, in run
+    self.advance(*args, **kwargs)
+  File "/home/ashri/.conda/envs/ldm/lib/python3.8/site-packages/pytorch_lightning/loops/fit_loop.py", line 200, in advance
+    epoch_output = self.epoch_loop.run(train_dataloader)
+  File "/home/ashri/.conda/envs/ldm/lib/python3.8/site-packages/pytorch_lightning/loops/base.py", line 111, in run
+    self.advance(*args, **kwargs)
+  File "/home/ashri/.conda/envs/ldm/lib/python3.8/site-packages/pytorch_lightning/loops/epoch/training_epoch_loop.py", line 130, in advance
+    batch_output = self.batch_loop.run(batch, self.iteration_count, self._dataloader_idx)
+  File "/home/ashri/.conda/envs/ldm/lib/python3.8/site-packages/pytorch_lightning/loops/batch/training_batch_loop.py", line 101, in run
+    super().run(batch, batch_idx, dataloader_idx)
+  File "/home/ashri/.conda/envs/ldm/lib/python3.8/site-packages/pytorch_lightning/loops/base.py", line 111, in run
+    self.advance(*args, **kwargs)
+  File "/home/ashri/.conda/envs/ldm/lib/python3.8/site-packages/pytorch_lightning/loops/batch/training_batch_loop.py", line 148, in advance
+    result = self._run_optimization(batch_idx, split_batch, opt_idx, optimizer)
+  File "/home/ashri/.conda/envs/ldm/lib/python3.8/site-packages/pytorch_lightning/loops/batch/training_batch_loop.py", line 202, in _run_optimization
+    self._optimizer_step(optimizer, opt_idx, batch_idx, closure)
+  File "/home/ashri/.conda/envs/ldm/lib/python3.8/site-packages/pytorch_lightning/loops/batch/training_batch_loop.py", line 396, in _optimizer_step
+    model_ref.optimizer_step(
+  File "/home/ashri/.conda/envs/ldm/lib/python3.8/site-packages/pytorch_lightning/core/lightning.py", line 1618, in optimizer_step
+    optimizer.step(closure=optimizer_closure)
+  File "/home/ashri/.conda/envs/ldm/lib/python3.8/site-packages/pytorch_lightning/core/optimizer.py", line 209, in step
+    self.__optimizer_step(*args, closure=closure, profiler_name=profiler_name, **kwargs)
+  File "/home/ashri/.conda/envs/ldm/lib/python3.8/site-packages/pytorch_lightning/core/optimizer.py", line 129, in __optimizer_step
+    trainer.accelerator.optimizer_step(optimizer, self._optimizer_idx, lambda_closure=closure, **kwargs)
+  File "/home/ashri/.conda/envs/ldm/lib/python3.8/site-packages/pytorch_lightning/accelerators/accelerator.py", line 296, in optimizer_step
+    self.run_optimizer_step(optimizer, opt_idx, lambda_closure, **kwargs)
+  File "/home/ashri/.conda/envs/ldm/lib/python3.8/site-packages/pytorch_lightning/accelerators/accelerator.py", line 303, in run_optimizer_step
+    self.training_type_plugin.optimizer_step(optimizer, lambda_closure=lambda_closure, **kwargs)
+  File "/home/ashri/.conda/envs/ldm/lib/python3.8/site-packages/pytorch_lightning/plugins/training_type/training_type_plugin.py", line 226, in optimizer_step
+    optimizer.step(closure=lambda_closure, **kwargs)
+  File "/home/ashri/.conda/envs/ldm/lib/python3.8/site-packages/torch/autograd/grad_mode.py", line 26, in decorate_context
+    return func(*args, **kwargs)
+  File "/home/ashri/.conda/envs/ldm/lib/python3.8/site-packages/torch/optim/adamw.py", line 65, in step
+    loss = closure()
+  File "/home/ashri/.conda/envs/ldm/lib/python3.8/site-packages/pytorch_lightning/loops/batch/training_batch_loop.py", line 236, in _training_step_and_backward_closure
+    result = self.training_step_and_backward(split_batch, batch_idx, opt_idx, optimizer, hiddens)
+  File "/home/ashri/.conda/envs/ldm/lib/python3.8/site-packages/pytorch_lightning/loops/batch/training_batch_loop.py", line 549, in training_step_and_backward
+    self.backward(result, optimizer, opt_idx)
+  File "/home/ashri/.conda/envs/ldm/lib/python3.8/site-packages/pytorch_lightning/loops/batch/training_batch_loop.py", line 590, in backward
+    result.closure_loss = self.trainer.accelerator.backward(result.closure_loss, optimizer, *args, **kwargs)
+  File "/home/ashri/.conda/envs/ldm/lib/python3.8/site-packages/pytorch_lightning/accelerators/accelerator.py", line 276, in backward
+    self.precision_plugin.backward(self.lightning_module, closure_loss, *args, **kwargs)
+  File "/home/ashri/.conda/envs/ldm/lib/python3.8/site-packages/pytorch_lightning/plugins/precision/precision_plugin.py", line 78, in backward
+    model.backward(closure_loss, optimizer, *args, **kwargs)
+  File "/home/ashri/.conda/envs/ldm/lib/python3.8/site-packages/pytorch_lightning/core/lightning.py", line 1481, in backward
+    loss.backward(*args, **kwargs)
+  File "/home/ashri/.conda/envs/ldm/lib/python3.8/site-packages/torch/tensor.py", line 221, in backward
+    torch.autograd.backward(self, gradient, retain_graph, create_graph)
+  File "/home/ashri/.conda/envs/ldm/lib/python3.8/site-packages/torch/autograd/__init__.py", line 130, in backward
+    Variable._execution_engine.run_backward(
+  File "/home/ashri/.conda/envs/ldm/lib/python3.8/site-packages/torch/autograd/function.py", line 89, in apply
+    return self._forward_cls.backward(self, *args)  # type: ignore
+  File "/home/ashri/latent-diffusion/ldm/modules/diffusionmodules/util.py", line 138, in backward
+    output_tensors = ctx.run_function(*shallow_copies)
+  File "/home/ashri/latent-diffusion/ldm/modules/diffusionmodules/openaimodel.py", line 322, in _forward
+    h = self.attention(qkv)
+  File "/home/ashri/.conda/envs/ldm/lib/python3.8/site-packages/torch/nn/modules/module.py", line 727, in _call_impl
+    result = self.forward(*input, **kwargs)
+  File "/home/ashri/latent-diffusion/ldm/modules/diffusionmodules/openaimodel.py", line 370, in forward
+    weight = th.softmax(weight.float(), dim=-1).type(weight.dtype)
+RuntimeError: CUDA out of memory. Tried to allocate 896.00 MiB (GPU 2; 44.40 GiB total capacity; 40.98 GiB already allocated; 659.31 MiB free; 42.46 GiB reserved in total by PyTorch)
+Traceback (most recent call last):
+  File "/home/ashri/latent-diffusion/main.py", line 766, in <module>
+    trainer.fit(model, data)
+  File "/home/ashri/.conda/envs/ldm/lib/python3.8/site-packages/pytorch_lightning/trainer/trainer.py", line 553, in fit
+    self._run(model)
+  File "/home/ashri/.conda/envs/ldm/lib/python3.8/site-packages/pytorch_lightning/trainer/trainer.py", line 918, in _run
+    self._dispatch()
+  File "/home/ashri/.conda/envs/ldm/lib/python3.8/site-packages/pytorch_lightning/trainer/trainer.py", line 986, in _dispatch
+    self.accelerator.start_training(self)
+  File "/home/ashri/.conda/envs/ldm/lib/python3.8/site-packages/pytorch_lightning/accelerators/accelerator.py", line 92, in start_training
+    self.training_type_plugin.start_training(trainer)
+  File "/home/ashri/.conda/envs/ldm/lib/python3.8/site-packages/pytorch_lightning/plugins/training_type/training_type_plugin.py", line 161, in start_training
+    self._results = trainer.run_stage()
+  File "/home/ashri/.conda/envs/ldm/lib/python3.8/site-packages/pytorch_lightning/trainer/trainer.py", line 996, in run_stage
+    return self._run_train()
+  File "/home/ashri/.conda/envs/ldm/lib/python3.8/site-packages/pytorch_lightning/trainer/trainer.py", line 1045, in _run_train
+    self.fit_loop.run()
+  File "/home/ashri/.conda/envs/ldm/lib/python3.8/site-packages/pytorch_lightning/loops/base.py", line 111, in run
+    self.advance(*args, **kwargs)
+  File "/home/ashri/.conda/envs/ldm/lib/python3.8/site-packages/pytorch_lightning/loops/fit_loop.py", line 200, in advance
+    epoch_output = self.epoch_loop.run(train_dataloader)
+  File "/home/ashri/.conda/envs/ldm/lib/python3.8/site-packages/pytorch_lightning/loops/base.py", line 111, in run
+    self.advance(*args, **kwargs)
+  File "/home/ashri/.conda/envs/ldm/lib/python3.8/site-packages/pytorch_lightning/loops/epoch/training_epoch_loop.py", line 130, in advance
+    batch_output = self.batch_loop.run(batch, self.iteration_count, self._dataloader_idx)
+  File "/home/ashri/.conda/envs/ldm/lib/python3.8/site-packages/pytorch_lightning/loops/batch/training_batch_loop.py", line 101, in run
+    super().run(batch, batch_idx, dataloader_idx)
+  File "/home/ashri/.conda/envs/ldm/lib/python3.8/site-packages/pytorch_lightning/loops/base.py", line 111, in run
+    self.advance(*args, **kwargs)
+  File "/home/ashri/.conda/envs/ldm/lib/python3.8/site-packages/pytorch_lightning/loops/batch/training_batch_loop.py", line 148, in advance
+    result = self._run_optimization(batch_idx, split_batch, opt_idx, optimizer)
+  File "/home/ashri/.conda/envs/ldm/lib/python3.8/site-packages/pytorch_lightning/loops/batch/training_batch_loop.py", line 202, in _run_optimization
+    self._optimizer_step(optimizer, opt_idx, batch_idx, closure)
+  File "/home/ashri/.conda/envs/ldm/lib/python3.8/site-packages/pytorch_lightning/loops/batch/training_batch_loop.py", line 396, in _optimizer_step
+    model_ref.optimizer_step(
+  File "/home/ashri/.conda/envs/ldm/lib/python3.8/site-packages/pytorch_lightning/core/lightning.py", line 1618, in optimizer_step
+    optimizer.step(closure=optimizer_closure)
+  File "/home/ashri/.conda/envs/ldm/lib/python3.8/site-packages/pytorch_lightning/core/optimizer.py", line 209, in step
+    self.__optimizer_step(*args, closure=closure, profiler_name=profiler_name, **kwargs)
+  File "/home/ashri/.conda/envs/ldm/lib/python3.8/site-packages/pytorch_lightning/core/optimizer.py", line 129, in __optimizer_step
+    trainer.accelerator.optimizer_step(optimizer, self._optimizer_idx, lambda_closure=closure, **kwargs)
+  File "/home/ashri/.conda/envs/ldm/lib/python3.8/site-packages/pytorch_lightning/accelerators/accelerator.py", line 296, in optimizer_step
+    self.run_optimizer_step(optimizer, opt_idx, lambda_closure, **kwargs)
+  File "/home/ashri/.conda/envs/ldm/lib/python3.8/site-packages/pytorch_lightning/accelerators/accelerator.py", line 303, in run_optimizer_step
+    self.training_type_plugin.optimizer_step(optimizer, lambda_closure=lambda_closure, **kwargs)
+  File "/home/ashri/.conda/envs/ldm/lib/python3.8/site-packages/pytorch_lightning/plugins/training_type/training_type_plugin.py", line 226, in optimizer_step
+    optimizer.step(closure=lambda_closure, **kwargs)
+  File "/home/ashri/.conda/envs/ldm/lib/python3.8/site-packages/torch/autograd/grad_mode.py", line 26, in decorate_context
+    return func(*args, **kwargs)
+  File "/home/ashri/.conda/envs/ldm/lib/python3.8/site-packages/torch/optim/adamw.py", line 65, in step
+    loss = closure()
+  File "/home/ashri/.conda/envs/ldm/lib/python3.8/site-packages/pytorch_lightning/loops/batch/training_batch_loop.py", line 236, in _training_step_and_backward_closure
+    result = self.training_step_and_backward(split_batch, batch_idx, opt_idx, optimizer, hiddens)
+  File "/home/ashri/.conda/envs/ldm/lib/python3.8/site-packages/pytorch_lightning/loops/batch/training_batch_loop.py", line 549, in training_step_and_backward
+    self.backward(result, optimizer, opt_idx)
+  File "/home/ashri/.conda/envs/ldm/lib/python3.8/site-packages/pytorch_lightning/loops/batch/training_batch_loop.py", line 590, in backward
+    result.closure_loss = self.trainer.accelerator.backward(result.closure_loss, optimizer, *args, **kwargs)
+  File "/home/ashri/.conda/envs/ldm/lib/python3.8/site-packages/pytorch_lightning/accelerators/accelerator.py", line 276, in backward
+    self.precision_plugin.backward(self.lightning_module, closure_loss, *args, **kwargs)
+  File "/home/ashri/.conda/envs/ldm/lib/python3.8/site-packages/pytorch_lightning/plugins/precision/precision_plugin.py", line 78, in backward
+    model.backward(closure_loss, optimizer, *args, **kwargs)
+  File "/home/ashri/.conda/envs/ldm/lib/python3.8/site-packages/pytorch_lightning/core/lightning.py", line 1481, in backward
+    loss.backward(*args, **kwargs)
+  File "/home/ashri/.conda/envs/ldm/lib/python3.8/site-packages/torch/tensor.py", line 221, in backward
+    torch.autograd.backward(self, gradient, retain_graph, create_graph)
+  File "/home/ashri/.conda/envs/ldm/lib/python3.8/site-packages/torch/autograd/__init__.py", line 130, in backward
+    Variable._execution_engine.run_backward(
+  File "/home/ashri/.conda/envs/ldm/lib/python3.8/site-packages/torch/autograd/function.py", line 89, in apply
+    return self._forward_cls.backward(self, *args)  # type: ignore
+  File "/home/ashri/latent-diffusion/ldm/modules/diffusionmodules/util.py", line 138, in backward
+    output_tensors = ctx.run_function(*shallow_copies)
+  File "/home/ashri/latent-diffusion/ldm/modules/diffusionmodules/openaimodel.py", line 322, in _forward
+    h = self.attention(qkv)
+  File "/home/ashri/.conda/envs/ldm/lib/python3.8/site-packages/torch/nn/modules/module.py", line 727, in _call_impl
+    result = self.forward(*input, **kwargs)
+  File "/home/ashri/latent-diffusion/ldm/modules/diffusionmodules/openaimodel.py", line 370, in forward
+    weight = th.softmax(weight.float(), dim=-1).type(weight.dtype)
+RuntimeError: CUDA out of memory. Tried to allocate 896.00 MiB (GPU 3; 44.40 GiB total capacity; 40.98 GiB already allocated; 679.31 MiB free; 42.46 GiB reserved in total by PyTorch)
+Summoning checkpoint.
+
+Traceback (most recent call last):
+  File "main.py", line 766, in <module>
+    trainer.fit(model, data)
+  File "/home/ashri/.conda/envs/ldm/lib/python3.8/site-packages/pytorch_lightning/trainer/trainer.py", line 553, in fit
+    self._run(model)
+  File "/home/ashri/.conda/envs/ldm/lib/python3.8/site-packages/pytorch_lightning/trainer/trainer.py", line 918, in _run
+    self._dispatch()
+  File "/home/ashri/.conda/envs/ldm/lib/python3.8/site-packages/pytorch_lightning/trainer/trainer.py", line 986, in _dispatch
+    self.accelerator.start_training(self)
+  File "/home/ashri/.conda/envs/ldm/lib/python3.8/site-packages/pytorch_lightning/accelerators/accelerator.py", line 92, in start_training
+    self.training_type_plugin.start_training(trainer)
+  File "/home/ashri/.conda/envs/ldm/lib/python3.8/site-packages/pytorch_lightning/plugins/training_type/training_type_plugin.py", line 161, in start_training
+    self._results = trainer.run_stage()
+  File "/home/ashri/.conda/envs/ldm/lib/python3.8/site-packages/pytorch_lightning/trainer/trainer.py", line 996, in run_stage
+    return self._run_train()
+  File "/home/ashri/.conda/envs/ldm/lib/python3.8/site-packages/pytorch_lightning/trainer/trainer.py", line 1045, in _run_train
+    self.fit_loop.run()
+  File "/home/ashri/.conda/envs/ldm/lib/python3.8/site-packages/pytorch_lightning/loops/base.py", line 111, in run
+    self.advance(*args, **kwargs)
+  File "/home/ashri/.conda/envs/ldm/lib/python3.8/site-packages/pytorch_lightning/loops/fit_loop.py", line 200, in advance
+    epoch_output = self.epoch_loop.run(train_dataloader)
+  File "/home/ashri/.conda/envs/ldm/lib/python3.8/site-packages/pytorch_lightning/loops/base.py", line 111, in run
+    self.advance(*args, **kwargs)
+  File "/home/ashri/.conda/envs/ldm/lib/python3.8/site-packages/pytorch_lightning/loops/epoch/training_epoch_loop.py", line 130, in advance
+    batch_output = self.batch_loop.run(batch, self.iteration_count, self._dataloader_idx)
+  File "/home/ashri/.conda/envs/ldm/lib/python3.8/site-packages/pytorch_lightning/loops/batch/training_batch_loop.py", line 101, in run
+    super().run(batch, batch_idx, dataloader_idx)
+  File "/home/ashri/.conda/envs/ldm/lib/python3.8/site-packages/pytorch_lightning/loops/base.py", line 111, in run
+    self.advance(*args, **kwargs)
+  File "/home/ashri/.conda/envs/ldm/lib/python3.8/site-packages/pytorch_lightning/loops/batch/training_batch_loop.py", line 148, in advance
+    result = self._run_optimization(batch_idx, split_batch, opt_idx, optimizer)
+  File "/home/ashri/.conda/envs/ldm/lib/python3.8/site-packages/pytorch_lightning/loops/batch/training_batch_loop.py", line 202, in _run_optimization
+    self._optimizer_step(optimizer, opt_idx, batch_idx, closure)
+  File "/home/ashri/.conda/envs/ldm/lib/python3.8/site-packages/pytorch_lightning/loops/batch/training_batch_loop.py", line 396, in _optimizer_step
+    model_ref.optimizer_step(
+  File "/home/ashri/.conda/envs/ldm/lib/python3.8/site-packages/pytorch_lightning/core/lightning.py", line 1618, in optimizer_step
+    optimizer.step(closure=optimizer_closure)
+  File "/home/ashri/.conda/envs/ldm/lib/python3.8/site-packages/pytorch_lightning/core/optimizer.py", line 209, in step
+    self.__optimizer_step(*args, closure=closure, profiler_name=profiler_name, **kwargs)
+  File "/home/ashri/.conda/envs/ldm/lib/python3.8/site-packages/pytorch_lightning/core/optimizer.py", line 129, in __optimizer_step
+    trainer.accelerator.optimizer_step(optimizer, self._optimizer_idx, lambda_closure=closure, **kwargs)
+  File "/home/ashri/.conda/envs/ldm/lib/python3.8/site-packages/pytorch_lightning/accelerators/accelerator.py", line 296, in optimizer_step
+    self.run_optimizer_step(optimizer, opt_idx, lambda_closure, **kwargs)
+  File "/home/ashri/.conda/envs/ldm/lib/python3.8/site-packages/pytorch_lightning/accelerators/accelerator.py", line 303, in run_optimizer_step
+    self.training_type_plugin.optimizer_step(optimizer, lambda_closure=lambda_closure, **kwargs)
+  File "/home/ashri/.conda/envs/ldm/lib/python3.8/site-packages/pytorch_lightning/plugins/training_type/training_type_plugin.py", line 226, in optimizer_step
+    optimizer.step(closure=lambda_closure, **kwargs)
+  File "/home/ashri/.conda/envs/ldm/lib/python3.8/site-packages/torch/autograd/grad_mode.py", line 26, in decorate_context
+    return func(*args, **kwargs)
+  File "/home/ashri/.conda/envs/ldm/lib/python3.8/site-packages/torch/optim/adamw.py", line 65, in step
+    loss = closure()
+  File "/home/ashri/.conda/envs/ldm/lib/python3.8/site-packages/pytorch_lightning/loops/batch/training_batch_loop.py", line 236, in _training_step_and_backward_closure
+    result = self.training_step_and_backward(split_batch, batch_idx, opt_idx, optimizer, hiddens)
+  File "/home/ashri/.conda/envs/ldm/lib/python3.8/site-packages/pytorch_lightning/loops/batch/training_batch_loop.py", line 549, in training_step_and_backward
+    self.backward(result, optimizer, opt_idx)
+  File "/home/ashri/.conda/envs/ldm/lib/python3.8/site-packages/pytorch_lightning/loops/batch/training_batch_loop.py", line 590, in backward
+    result.closure_loss = self.trainer.accelerator.backward(result.closure_loss, optimizer, *args, **kwargs)
+  File "/home/ashri/.conda/envs/ldm/lib/python3.8/site-packages/pytorch_lightning/accelerators/accelerator.py", line 276, in backward
+    self.precision_plugin.backward(self.lightning_module, closure_loss, *args, **kwargs)
+  File "/home/ashri/.conda/envs/ldm/lib/python3.8/site-packages/pytorch_lightning/plugins/precision/precision_plugin.py", line 78, in backward
+    model.backward(closure_loss, optimizer, *args, **kwargs)
+  File "/home/ashri/.conda/envs/ldm/lib/python3.8/site-packages/pytorch_lightning/core/lightning.py", line 1481, in backward
+    loss.backward(*args, **kwargs)
+  File "/home/ashri/.conda/envs/ldm/lib/python3.8/site-packages/torch/tensor.py", line 221, in backward
+    torch.autograd.backward(self, gradient, retain_graph, create_graph)
+  File "/home/ashri/.conda/envs/ldm/lib/python3.8/site-packages/torch/autograd/__init__.py", line 130, in backward
+    Variable._execution_engine.run_backward(
+  File "/home/ashri/.conda/envs/ldm/lib/python3.8/site-packages/torch/autograd/function.py", line 89, in apply
+    return self._forward_cls.backward(self, *args)  # type: ignore
+  File "/home/ashri/latent-diffusion/ldm/modules/diffusionmodules/util.py", line 138, in backward
+    output_tensors = ctx.run_function(*shallow_copies)
+  File "/home/ashri/latent-diffusion/ldm/modules/diffusionmodules/openaimodel.py", line 322, in _forward
+    h = self.attention(qkv)
+  File "/home/ashri/.conda/envs/ldm/lib/python3.8/site-packages/torch/nn/modules/module.py", line 727, in _call_impl
+    result = self.forward(*input, **kwargs)
+  File "/home/ashri/latent-diffusion/ldm/modules/diffusionmodules/openaimodel.py", line 370, in forward
+    weight = th.softmax(weight.float(), dim=-1).type(weight.dtype)
+RuntimeError: CUDA out of memory. Tried to allocate 896.00 MiB (GPU 0; 44.40 GiB total capacity; 40.98 GiB already allocated; 663.31 MiB free; 42.46 GiB reserved in total by PyTorch)
+Global seed set to 23
+GPU available: True, used: True
+TPU available: False, using: 0 TPU cores
+IPU available: False, using: 0 IPUs
+Global seed set to 23
+Global seed set to 23
+Global seed set to 23
+Global seed set to 23
+initializing ddp: GLOBAL_RANK: 1, MEMBER: 2/4
+Global seed set to 23
+initializing ddp: GLOBAL_RANK: 0, MEMBER: 1/4
+Global seed set to 23
+initializing ddp: GLOBAL_RANK: 2, MEMBER: 3/4
+slurmstepd: error: *** JOB 56116383 ON gl1519 CANCELLED AT 2023-07-19T18:03:48 ***

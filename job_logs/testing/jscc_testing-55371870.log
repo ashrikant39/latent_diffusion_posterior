@@ -1,0 +1,113 @@
+no change     /sw/pkgs/arc/python3.9-anaconda/2021.11/condabin/conda
+no change     /sw/pkgs/arc/python3.9-anaconda/2021.11/bin/conda
+no change     /sw/pkgs/arc/python3.9-anaconda/2021.11/bin/conda-env
+no change     /sw/pkgs/arc/python3.9-anaconda/2021.11/bin/activate
+no change     /sw/pkgs/arc/python3.9-anaconda/2021.11/bin/deactivate
+no change     /sw/pkgs/arc/python3.9-anaconda/2021.11/etc/profile.d/conda.sh
+no change     /sw/pkgs/arc/python3.9-anaconda/2021.11/etc/fish/conf.d/conda.fish
+no change     /sw/pkgs/arc/python3.9-anaconda/2021.11/shell/condabin/Conda.psm1
+no change     /sw/pkgs/arc/python3.9-anaconda/2021.11/shell/condabin/conda-hook.ps1
+no change     /sw/pkgs/arc/python3.9-anaconda/2021.11/lib/python3.9/site-packages/xontrib/conda.xsh
+no change     /sw/pkgs/arc/python3.9-anaconda/2021.11/etc/profile.d/conda.csh
+no change     /home/ashri/.bashrc
+No action taken.
+Traceback (most recent call last):
+  File "jscc_baseline_testing.py", line 138, in <module>
+    config = OmegaConf.load(glob.glob(os.path.join(LOGDIR, "configs", "*project.yaml"))[0])
+IndexError: list index out of range
+Traceback (most recent call last):
+  File "jscc_baseline_testing.py", line 138, in <module>
+    config = OmegaConf.load(glob.glob(os.path.join(LOGDIR, "configs", "*project.yaml"))[0])
+IndexError: list index out of range
+Traceback (most recent call last):
+  File "jscc_baseline_testing.py", line 138, in <module>
+    config = OmegaConf.load(glob.glob(os.path.join(LOGDIR, "configs", "*project.yaml"))[0])
+IndexError: list index out of range
+Traceback (most recent call last):
+  File "jscc_baseline_testing.py", line 138, in <module>
+    config = OmegaConf.load(glob.glob(os.path.join(LOGDIR, "configs", "*project.yaml"))[0])
+IndexError: list index out of range
+Traceback (most recent call last):
+  File "jscc_baseline_testing.py", line 138, in <module>
+    config = OmegaConf.load(glob.glob(os.path.join(LOGDIR, "configs", "*project.yaml"))[0])
+IndexError: list index out of range
+Traceback (most recent call last):
+  File "jscc_baseline_testing.py", line 138, in <module>
+    config = OmegaConf.load(glob.glob(os.path.join(LOGDIR, "configs", "*project.yaml"))[0])
+IndexError: list index out of range
+Traceback (most recent call last):
+  File "jscc_baseline_testing.py", line 138, in <module>
+    config = OmegaConf.load(glob.glob(os.path.join(LOGDIR, "configs", "*project.yaml"))[0])
+IndexError: list index out of range
+Traceback (most recent call last):
+  File "jscc_baseline_testing.py", line 138, in <module>
+    config = OmegaConf.load(glob.glob(os.path.join(LOGDIR, "configs", "*project.yaml"))[0])
+IndexError: list index out of range
+Traceback (most recent call last):
+  File "jscc_baseline_testing.py", line 138, in <module>
+    config = OmegaConf.load(glob.glob(os.path.join(LOGDIR, "configs", "*project.yaml"))[0])
+IndexError: list index out of range
+Traceback (most recent call last):
+  File "jscc_baseline_testing.py", line 138, in <module>
+    config = OmegaConf.load(glob.glob(os.path.join(LOGDIR, "configs", "*project.yaml"))[0])
+IndexError: list index out of range
+Traceback (most recent call last):
+  File "jscc_baseline_testing.py", line 138, in <module>
+    config = OmegaConf.load(glob.glob(os.path.join(LOGDIR, "configs", "*project.yaml"))[0])
+IndexError: list index out of range
+Traceback (most recent call last):
+  File "jscc_baseline_testing.py", line 138, in <module>
+    config = OmegaConf.load(glob.glob(os.path.join(LOGDIR, "configs", "*project.yaml"))[0])
+IndexError: list index out of range
+Traceback (most recent call last):
+  File "jscc_baseline_testing.py", line 138, in <module>
+    config = OmegaConf.load(glob.glob(os.path.join(LOGDIR, "configs", "*project.yaml"))[0])
+IndexError: list index out of range
+Traceback (most recent call last):
+  File "jscc_baseline_testing.py", line 138, in <module>
+    config = OmegaConf.load(glob.glob(os.path.join(LOGDIR, "configs", "*project.yaml"))[0])
+IndexError: list index out of range
+Traceback (most recent call last):
+  File "jscc_baseline_testing.py", line 138, in <module>
+    config = OmegaConf.load(glob.glob(os.path.join(LOGDIR, "configs", "*project.yaml"))[0])
+IndexError: list index out of range
+Traceback (most recent call last):
+  File "jscc_baseline_testing.py", line 138, in <module>
+    config = OmegaConf.load(glob.glob(os.path.join(LOGDIR, "configs", "*project.yaml"))[0])
+IndexError: list index out of range
+Traceback (most recent call last):
+  File "jscc_baseline_testing.py", line 138, in <module>
+    config = OmegaConf.load(glob.glob(os.path.join(LOGDIR, "configs", "*project.yaml"))[0])
+IndexError: list index out of range
+Traceback (most recent call last):
+  File "jscc_baseline_testing.py", line 138, in <module>
+    config = OmegaConf.load(glob.glob(os.path.join(LOGDIR, "configs", "*project.yaml"))[0])
+IndexError: list index out of range
+Traceback (most recent call last):
+  File "jscc_baseline_testing.py", line 138, in <module>
+    config = OmegaConf.load(glob.glob(os.path.join(LOGDIR, "configs", "*project.yaml"))[0])
+IndexError: list index out of range
+Traceback (most recent call last):
+  File "jscc_baseline_testing.py", line 138, in <module>
+    config = OmegaConf.load(glob.glob(os.path.join(LOGDIR, "configs", "*project.yaml"))[0])
+IndexError: list index out of range
+Traceback (most recent call last):
+  File "jscc_baseline_testing.py", line 138, in <module>
+    config = OmegaConf.load(glob.glob(os.path.join(LOGDIR, "configs", "*project.yaml"))[0])
+IndexError: list index out of range
+Traceback (most recent call last):
+  File "jscc_baseline_testing.py", line 138, in <module>
+    config = OmegaConf.load(glob.glob(os.path.join(LOGDIR, "configs", "*project.yaml"))[0])
+IndexError: list index out of range
+Traceback (most recent call last):
+  File "jscc_baseline_testing.py", line 138, in <module>
+    config = OmegaConf.load(glob.glob(os.path.join(LOGDIR, "configs", "*project.yaml"))[0])
+IndexError: list index out of range
+Traceback (most recent call last):
+  File "jscc_baseline_testing.py", line 138, in <module>
+    config = OmegaConf.load(glob.glob(os.path.join(LOGDIR, "configs", "*project.yaml"))[0])
+IndexError: list index out of range
+Traceback (most recent call last):
+  File "jscc_baseline_testing.py", line 138, in <module>
+    config = OmegaConf.load(glob.glob(os.path.join(LOGDIR, "configs", "*project.yaml"))[0])
+IndexError: list index out of range

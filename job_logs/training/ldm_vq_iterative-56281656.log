@@ -1,0 +1,126 @@
+no change     /sw/pkgs/arc/python3.9-anaconda/2021.11/condabin/conda
+no change     /sw/pkgs/arc/python3.9-anaconda/2021.11/bin/conda
+no change     /sw/pkgs/arc/python3.9-anaconda/2021.11/bin/conda-env
+no change     /sw/pkgs/arc/python3.9-anaconda/2021.11/bin/activate
+no change     /sw/pkgs/arc/python3.9-anaconda/2021.11/bin/deactivate
+no change     /sw/pkgs/arc/python3.9-anaconda/2021.11/etc/profile.d/conda.sh
+no change     /sw/pkgs/arc/python3.9-anaconda/2021.11/etc/fish/conf.d/conda.fish
+no change     /sw/pkgs/arc/python3.9-anaconda/2021.11/shell/condabin/Conda.psm1
+no change     /sw/pkgs/arc/python3.9-anaconda/2021.11/shell/condabin/conda-hook.ps1
+no change     /sw/pkgs/arc/python3.9-anaconda/2021.11/lib/python3.9/site-packages/xontrib/conda.xsh
+no change     /sw/pkgs/arc/python3.9-anaconda/2021.11/etc/profile.d/conda.csh
+no change     /home/ashri/.bashrc
+No action taken.
+no change     /sw/pkgs/arc/python3.9-anaconda/2021.11/condabin/conda
+no change     /sw/pkgs/arc/python3.9-anaconda/2021.11/bin/conda
+no change     /sw/pkgs/arc/python3.9-anaconda/2021.11/bin/conda-env
+no change     /sw/pkgs/arc/python3.9-anaconda/2021.11/bin/activate
+no change     /sw/pkgs/arc/python3.9-anaconda/2021.11/bin/deactivate
+no change     /sw/pkgs/arc/python3.9-anaconda/2021.11/etc/profile.d/conda.sh
+no change     /sw/pkgs/arc/python3.9-anaconda/2021.11/etc/fish/conf.d/conda.fish
+no change     /sw/pkgs/arc/python3.9-anaconda/2021.11/shell/condabin/Conda.psm1
+no change     /sw/pkgs/arc/python3.9-anaconda/2021.11/shell/condabin/conda-hook.ps1
+no change     /sw/pkgs/arc/python3.9-anaconda/2021.11/lib/python3.9/site-packages/xontrib/conda.xsh
+no change     /sw/pkgs/arc/python3.9-anaconda/2021.11/etc/profile.d/conda.csh
+no change     /home/ashri/.bashrc
+No action taken.
+Preparing LSUN Dataset
+Copying Text files to /tmpssd/ashri/LSUN
+Extracting training images to /tmpssd/ashri/LSUN/bedrooms/
+Exporting /nfs/turbo/coe-hunseok/ashri/lsun_data/bedroom_train_lmdb/ to /tmpssd/ashri/LSUN/bedrooms/
+Finished 1000000 images
+Finished 2000000 images
+Finished 3000000 images
+Extracting validation images to at /tmpssd/ashri/LSUN/bedrooms/
+Exporting /nfs/turbo/coe-hunseok/ashri/lsun_data/bedroom_val_lmdb/ to /tmpssd/ashri/LSUN/bedrooms/
+Unzip finish
+Global seed set to 23
+----------------------------
+Max steps: 500
+----------------------------
+Running on GPUs 4
+Traceback (most recent call last):
+  File "main.py", line 579, in <module>
+    model = instantiate_from_config(config.model)
+  File "/home/ashri/latent-diffusion/ldm/util.py", line 85, in instantiate_from_config
+    return get_obj_from_str(config["target"])(**config.get("params", dict()))
+TypeError: __init__() missing 1 required positional argument: 'channel_snr_dB'
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "main.py", line 787, in <module>
+    if trainer.global_rank == 0:
+NameError: name 'trainer' is not defined
+Global seed set to 23
+----------------------------
+Max steps: 500
+----------------------------
+Running on GPUs 4
+Traceback (most recent call last):
+  File "main.py", line 579, in <module>
+    model = instantiate_from_config(config.model)
+  File "/home/ashri/latent-diffusion/ldm/util.py", line 85, in instantiate_from_config
+    return get_obj_from_str(config["target"])(**config.get("params", dict()))
+TypeError: __init__() missing 1 required positional argument: 'channel_snr_dB'
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "main.py", line 787, in <module>
+    if trainer.global_rank == 0:
+NameError: name 'trainer' is not defined
+Global seed set to 23
+----------------------------
+Max steps: 500
+----------------------------
+Running on GPUs 4
+Traceback (most recent call last):
+  File "main.py", line 579, in <module>
+    model = instantiate_from_config(config.model)
+  File "/home/ashri/latent-diffusion/ldm/util.py", line 85, in instantiate_from_config
+    return get_obj_from_str(config["target"])(**config.get("params", dict()))
+TypeError: __init__() missing 1 required positional argument: 'channel_snr_dB'
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "main.py", line 787, in <module>
+    if trainer.global_rank == 0:
+NameError: name 'trainer' is not defined
+Global seed set to 23
+----------------------------
+Max steps: 500
+----------------------------
+Running on GPUs 4
+Traceback (most recent call last):
+  File "main.py", line 579, in <module>
+    model = instantiate_from_config(config.model)
+  File "/home/ashri/latent-diffusion/ldm/util.py", line 85, in instantiate_from_config
+    return get_obj_from_str(config["target"])(**config.get("params", dict()))
+TypeError: __init__() missing 1 required positional argument: 'channel_snr_dB'
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "main.py", line 787, in <module>
+    if trainer.global_rank == 0:
+NameError: name 'trainer' is not defined
+Global seed set to 23
+----------------------------
+Max steps: 500
+----------------------------
+Running on GPUs 4
+Traceback (most recent call last):
+  File "main.py", line 579, in <module>
+    model = instantiate_from_config(config.model)
+  File "/home/ashri/latent-diffusion/ldm/util.py", line 85, in instantiate_from_config
+    return get_obj_from_str(config["target"])(**config.get("params", dict()))
+TypeError: __init__() missing 1 required positional argument: 'channel_snr_dB'
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "main.py", line 787, in <module>
+    if trainer.global_rank == 0:
+NameError: name 'trainer' is not defined

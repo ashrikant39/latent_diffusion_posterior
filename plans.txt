@@ -1,0 +1,11 @@
+PSNR recon vs SNR plot.
+
+"/nfs/turbo/coe-hunseok/ashri/lsun_data"
+
+Data: LSUN Bedroom Val set
+SNR ranges - -5-20 with 5dB granulity.
+
+PSNR, Multi-scale SSIM metric, FID, LPIPS, vs SNR
+
+Before DDPM -> One plot
+After DDPM -> Another plot

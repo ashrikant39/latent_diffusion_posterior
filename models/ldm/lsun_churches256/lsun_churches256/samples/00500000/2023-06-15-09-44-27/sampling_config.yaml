@@ -1,0 +1,9 @@
+base:
+- models/ldm/lsun_churches256/config.yaml
+batch_size: 1
+custom_steps: 200
+eta: 1.0
+logdir: models/ldm/lsun_churches256
+n_samples: 5
+resume: models/ldm/lsun_churches256/model.ckpt
+vanilla_sample: false
