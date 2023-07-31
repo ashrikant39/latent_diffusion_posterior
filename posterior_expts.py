@@ -61,7 +61,7 @@ if __name__=="__main__":
     DEVICE = "cuda"
 
     test_snr = 10**(TEST_SNR_DB/10)
-    config = OmegaConf.load("/home/ashri/latent-diffusion/configs/latent-diffusion/ldm_all_models_iterative.yaml")
+    config = OmegaConf.load("./configs/latent-diffusion/ldm_all_models_iterative.yaml")
     config.model.params.channel_snr_dB = TEST_SNR_DB
 
     ldm_posterior_model = instantiate_from_config(config["model"])
@@ -87,14 +87,18 @@ if __name__=="__main__":
 
     for image_dict in tqdm(dataloader):
         
-        images = rearrange(image_dict["image"].cuda(), 'b h w c -> b c h w')
-        codewords = ldm_posterior_model.first_stage_model.encode(images)
-        signal_power = torch.mean(codewords**2)
-        noisy_codeword = codewords + torch.randn_like(codewords)*signal_power/test_snr
+        with torch.no_grad():
+            images = rearrange(image_dict["image"].cuda(), 'b h w c -> b c h w')
+            codewords = ldm_posterior_model.first_stage_model.encode(images)
+            signal_power = torch.mean(codewords**2)
+            noisy_codeword = codewords + torch.randn_like(codewords)*signal_power/test_snr
         sampled_codeword = ldm_posterior_model.posterior_sampling(TEST_SNR_DB, noisy_codeword)
         
-        reconstructed = torch.clamp(ldm_posterior_model.first_stage_model.decode(sampled_codeword), -1.0, 1.0)
-        scores = compute_metrics(images, reconstructed)
+        
+        with torch.no_grad():
+            reconstructed = torch.clamp(ldm_posterior_model.first_stage_model.decode(sampled_codeword), -1.0, 1.0)
+            scores = compute_metrics(images, reconstructed)
+            print(scores)
         for idx, key in enumerate(metric_dict.keys()):
                 metric_dict[key] += scores[idx]
 

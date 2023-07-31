@@ -2557,7 +2557,7 @@ class LatentDiffusionPosteriorJSCC(DDPM):
                         total=enter_timestep) if verbose else reversed(
             range(0, enter_timestep))
 
-        one_step_denoised = noisy_codeword
+        one_step_denoised = noisy_codeword.clone().detach().requires_grad_()
 
         assert self.parameterization == "eps"
 
@@ -2567,8 +2567,13 @@ class LatentDiffusionPosteriorJSCC(DDPM):
             denoised, mean_clean_codeword = self.p_sample(one_step_denoised, c=None, t=ts, return_x0 = True)
             re_encoded_codeword = self.first_stage_model.encode(self.first_stage_model.decode(mean_clean_codeword))
             neg_log_likelihood = 0.5*F.mse_loss(noisy_codeword, re_encoded_codeword, reduction="none").mean(dim=[1,2,3])
-            grad_log_likelihood = torch.autograd.grad(neg_log_likelihood.mean(), one_step_denoised)[0]/(1.0 - self.alphas_cumprod[enter_timestep])
-            one_step_denoised = denoised - scale_grad*grad_log_likelihood/torch.sqrt(neg_log_likelihood)[:, None, None, None]
+            nll = neg_log_likelihood.mean()
+            nll.backward()
+            with torch.no_grad():
+                grad_log_likelihood = one_step_denoised.grad/(1.0 - self.alphas_cumprod[enter_timestep])
+                #grad_log_likelihood = torch.autograd.grad(neg_log_likelihood.mean(), one_step_denoised)[0]/(1.0 - self.alphas_cumprod[enter_timestep])
+                one_step_denoised.data = denoised - scale_grad*grad_log_likelihood/torch.sqrt(neg_log_likelihood)[:, None, None, None]
+                one_step_denoised.grad.fill_(0.)
 
         return one_step_denoised
 
