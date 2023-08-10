@@ -84,21 +84,27 @@ if __name__=="__main__":
         }
 
     total_examples = main_dataset.__len__()
+    var_inv = 10 ** (TEST_SNR_DB / 10)
 
+    torch.manual_seed(0)
     for image_dict in tqdm(dataloader):
         
+
         with torch.no_grad():
             images = rearrange(image_dict["image"].cuda(), 'b h w c -> b c h w')
             codewords = ldm_posterior_model.first_stage_model.encode(images)
             signal_power = torch.mean(codewords**2)
             noisy_codeword = codewords + torch.randn_like(codewords)*signal_power/test_snr
-        sampled_codeword = ldm_posterior_model.posterior_sampling(TEST_SNR_DB, noisy_codeword)
-        
-        
-        with torch.no_grad():
-            reconstructed = torch.clamp(ldm_posterior_model.first_stage_model.decode(sampled_codeword), -1.0, 1.0)
-            scores = compute_metrics(images, reconstructed)
-            print(scores)
+
+
+
+        etas = [0.0, 100.0, 500.0, 1000.0]
+        for eta in etas:
+            sampled_codeword = ldm_posterior_model.posterior_sampling(TEST_SNR_DB, noisy_codeword, eta)
+            with torch.no_grad():
+                reconstructed = torch.clamp(ldm_posterior_model.first_stage_model.decode(sampled_codeword), -1.0, 1.0)
+                scores = compute_metrics(images, reconstructed)
+                print("Eta: {:5.1f}".format(eta), "PSNR:", scores[0]/args.batch_size, "LPIPS:", scores[-1]/args.batch_size)
         for idx, key in enumerate(metric_dict.keys()):
                 metric_dict[key] += scores[idx]
 
