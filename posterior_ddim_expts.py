@@ -129,10 +129,9 @@ if __name__=="__main__":
             noise = torch.randn_like(codewords)*torch.sqrt(signal_power/test_snr)
             noisy_codeword = codewords + noise
 
-            with torch.no_grad():
-                reconstructed = torch.clamp(ldm_posterior_model.first_stage_model.decode(noisy_codeword), -1.0, 1.0)
-                scores = compute_metrics(images, reconstructed)
-                #print("Before Denoising", "PSNR:", scores[0]/args.batch_size, "LPIPS:", scores[-1]/args.batch_size)
+            #with torch.no_grad():
+            #    reconstructed = torch.clamp(ldm_posterior_model.first_stage_model.decode(noisy_codeword), -1.0, 1.0)
+            #    scores = compute_metrics(images, reconstructed)
 
         sampled_codeword, _ = ddim_model.ddim_sampling(None, noisy_codeword.size(), test_snr / signal_power, x_T=noisy_codeword, scale_grad=args.eta)
         with torch.no_grad():
