@@ -238,7 +238,7 @@ class DDIMSamplerJSCC(DDIMSampler):
             intermediates = {'x_inter': [img], 'pred_x0': [img]}
             time_range = reversed(range(0,timesteps)) if ddim_use_original_steps else np.flip(timesteps)
             total_steps = timesteps if ddim_use_original_steps else timesteps.shape[0]
-            print(f"Running DDIM Sampling with {total_steps} timesteps")
+            #print(f"Running DDIM Sampling with {total_steps} timesteps")
 
             iterator = time_range #tqdm(time_range, desc='DDIM Sampler', total=total_steps)
 
@@ -259,10 +259,12 @@ class DDIMSamplerJSCC(DDIMSampler):
                                       unconditional_guidance_scale=unconditional_guidance_scale,
                                       unconditional_conditioning=unconditional_conditioning)
             img_prior, pred_x0 = outs
+            
+            # Likelihood Part 
             if scale_grad > 0:
-                nll = F.mse_loss(pred_x0, x_T)
-                grad_log_likelihood = torch.autograd.grad(nll, img)[0] * self.ddim_alphas[enter_timestep] / (1.0 - self.ddim_alphas[enter_timestep])
-                img = img_prior + scale_grad * grad_log_likelihood
+                nll = F.mse_loss(pred_x0, x_T, reduction="none").sum(dim=(1,2,3), keepdim=True)
+                grad_log_likelihood = torch.autograd.grad(nll.mean(), img)[0] #* self.ddim_alphas[enter_timestep] / (1.0 - self.ddim_alphas[enter_timestep])
+                img = img_prior + scale_grad * grad_log_likelihood / nll.sqrt()
             else:
                 img = img_prior
 

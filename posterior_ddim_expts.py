@@ -54,13 +54,22 @@ if __name__=="__main__":
         default=2
     )
     parser.add_argument(
+        "-de",
+        "--ddim_eta",
+        type=float,
+        nargs="?",
+        help="ddim eta for ddim sampling (0.0 yields deterministic sampling)",
+        default=0.0
+    )
+    parser.add_argument(
         "-e",
         "--eta",
         type=float,
         nargs="?",
-        help="eta for ddim sampling (0.0 yields deterministic sampling)",
+        help="eta for scaling the gradient of the likelihood",
         default=1.0
     )
+
     parser.add_argument(
         "-c",
         "--custom_steps",
@@ -83,7 +92,7 @@ if __name__=="__main__":
     ldm_posterior_model = instantiate_from_config(config["model"])
 
     ddim_model = DDIMSamplerJSCC(ldm_posterior_model)
-    ddim_model.make_schedule(ddim_num_steps=args.custom_steps, ddim_eta=args.eta, verbose=False)
+    ddim_model.make_schedule(ddim_num_steps=args.custom_steps, ddim_eta=args.ddim_eta, verbose=False)
 
     ldm_posterior_model = ldm_posterior_model.to("cuda")
 
@@ -106,8 +115,11 @@ if __name__=="__main__":
     total_examples = main_dataset.__len__()
     var_inv = 10 ** (TEST_SNR_DB / 10)
 
+    num_samples_processed = 0
+
     torch.manual_seed(0)
-    for image_dict in tqdm(dataloader):
+    iterator = tqdm(dataloader)
+    for image_dict in iterator:
         
 
         with torch.no_grad():
@@ -117,23 +129,21 @@ if __name__=="__main__":
             noise = torch.randn_like(codewords)*torch.sqrt(signal_power/test_snr)
             noisy_codeword = codewords + noise
 
-            print("Signal Power:", torch.mean(codewords**2).item() , "Noise Power:", torch.mean(noise ** 2).item())
-
             with torch.no_grad():
                 reconstructed = torch.clamp(ldm_posterior_model.first_stage_model.decode(noisy_codeword), -1.0, 1.0)
                 scores = compute_metrics(images, reconstructed)
-                print("Before Denoising", "PSNR:", scores[0]/args.batch_size, "LPIPS:", scores[-1]/args.batch_size)
+                #print("Before Denoising", "PSNR:", scores[0]/args.batch_size, "LPIPS:", scores[-1]/args.batch_size)
 
-        etas = [0.0, 1.0, 10.0]
-        for eta in etas:
-            #sampled_codeword = ldm_posterior_model.posterior_sampling(test_snr / signal_power, noisy_codeword, eta, re_encode=False)
-            sampled_codeword, _ = ddim_model.ddim_sampling(None, noisy_codeword.size(), test_snr / signal_power, x_T=noisy_codeword, scale_grad=eta)
-            with torch.no_grad():
-                reconstructed = torch.clamp(ldm_posterior_model.first_stage_model.decode(sampled_codeword), -1.0, 1.0)
-                scores = compute_metrics(images, reconstructed)
-                print("Eta: {:5.2f}".format(eta), "PSNR:", scores[0]/args.batch_size, "LPIPS:", scores[-1]/args.batch_size)
+        sampled_codeword, _ = ddim_model.ddim_sampling(None, noisy_codeword.size(), test_snr / signal_power, x_T=noisy_codeword, scale_grad=args.eta)
+        with torch.no_grad():
+            reconstructed = torch.clamp(ldm_posterior_model.first_stage_model.decode(sampled_codeword), -1.0, 1.0)
+            scores = compute_metrics(images, reconstructed)
+            #print("Eta: {:5.2f}".format(args.eta), "PSNR:", scores[0]/args.batch_size, "LPIPS:", scores[-1]/args.batch_size)
         for idx, key in enumerate(metric_dict.keys()):
-                metric_dict[key] += scores[idx]
+            metric_dict[key] += scores[idx]
+        num_samples_processed += images.size(0)
+        iterator.set_description("Avg PSNR: {:.2f}, Avg LPIPS: {:.2f}".format(metric_dict["PSNR"]/num_samples_processed, metric_dict["LPIPS_VGG"]/num_samples_processed))
+
 
     for key in metric_dict.keys():
         metric_dict[key] = metric_dict[key]/total_examples
