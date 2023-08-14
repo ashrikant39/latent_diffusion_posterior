@@ -13,6 +13,7 @@ from ldm_testing import compute_metrics
 from einops import rearrange
 from tqdm import tqdm
 from ldm.models.diffusion.ddim import DDIMSamplerJSCC
+from scripts.sample_diffusion import custom_to_pil
 
 
 if __name__=="__main__":
@@ -78,6 +79,28 @@ if __name__=="__main__":
         help="number of steps for ddim and fastdpm sampling",
         default=50
     )
+    parser.add_argument(
+        "-mi",
+        "--max_images",
+        type=int,
+        nargs="?",
+        help="number of steps for ddim and fastdpm sampling",
+        default=64
+    )
+    parser.add_argument(
+        "-sa",
+        "--sampling_algorithm",
+        type=str,
+        help="sampling algorithm, 'ddpm' or 'ddim'",
+        default='ddim'
+    )
+    parser.add_argument(
+        "-re",
+        "--re_encode",
+        action='store_true',
+        help="Re-encoding"
+    )
+
     args, unknown = parser.parse_known_args()
     LOGDIR = args.log_dir
     TEST_SNR_DB = args.test_snr_db
@@ -119,7 +142,9 @@ if __name__=="__main__":
 
     torch.manual_seed(0)
     iterator = tqdm(dataloader)
-    for image_dict in iterator:
+    for i, image_dict in enumerate(iterator):
+        if i == args.max_images // args.batch_size:
+            break
         
 
         with torch.no_grad():
@@ -133,7 +158,10 @@ if __name__=="__main__":
             #    reconstructed = torch.clamp(ldm_posterior_model.first_stage_model.decode(noisy_codeword), -1.0, 1.0)
             #    scores = compute_metrics(images, reconstructed)
 
-        sampled_codeword, _ = ddim_model.ddim_sampling(None, noisy_codeword.size(), test_snr / signal_power, x_T=noisy_codeword, scale_grad=args.eta)
+        if args.sampling_algorithm == 'ddim':
+            sampled_codeword, _, total_steps = ddim_model.ddim_sampling(None, noisy_codeword.size(), test_snr / signal_power, x_T=noisy_codeword, scale_grad=args.eta, re_encode=args.re_encode)
+        elif args.sampling_algorithm == 'ddpm':
+            sampled_codeword, total_steps = ldm_posterior_model.posterior_sampling(test_snr / signal_power, noisy_codeword, scale_grad=args.eta)
         with torch.no_grad():
             reconstructed = torch.clamp(ldm_posterior_model.first_stage_model.decode(sampled_codeword), -1.0, 1.0)
             scores = compute_metrics(images, reconstructed)
@@ -141,12 +169,19 @@ if __name__=="__main__":
         for idx, key in enumerate(metric_dict.keys()):
             metric_dict[key] += scores[idx]
         num_samples_processed += images.size(0)
-        iterator.set_description("Avg PSNR: {:.2f}, Avg LPIPS: {:.2f}".format(metric_dict["PSNR"]/num_samples_processed, metric_dict["LPIPS_VGG"]/num_samples_processed))
+        iterator.set_description("Avg PSNR: {:.2f}, Avg LPIPS: {:.4f}, steps: {}".format(metric_dict["PSNR"]/num_samples_processed, metric_dict["LPIPS_VGG"]/num_samples_processed, total_steps))
 
 
+    reconstructed = custom_to_pil(reconstructed[-1,:,:,:])
+    reconstructed.save("out.png")
+
+    images = custom_to_pil(images[-1,:,:,:])
+    images.save("target.png")
+    exit()
     for key in metric_dict.keys():
         metric_dict[key] = metric_dict[key]/total_examples
 
+    
     filename = os.path.join(LOGDIR, f"posterior_test_{TEST_SNR_DB}_metrics.pkl")
     with open(filename, "wb") as fp:
         pickle.dump(metric_dict, fp)

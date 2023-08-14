@@ -2547,11 +2547,13 @@ class LatentDiffusionPosteriorJSCC(DDPM):
         x = 2. * (x - x.min()) / (x.max() - x.min()) - 1.
         return x
     
-    def posterior_sampling(self, test_snr_dB, noisy_codeword, scale_grad = 1.0, verbose = False):
+    def posterior_sampling(self, test_snr, noisy_codeword, scale_grad = 1.0, verbose = False,
+                           re_encode=False):
         
-        test_snr = 10**(test_snr_dB/10)
-        assert test_snr >= self.channel_snr
-        alpha_noisy = test_snr/(torch.mean(noisy_codeword**2) + test_snr)
+        #test_snr = 10**(test_snr_dB/10)
+        #assert test_snr >= self.channel_snr
+        #alpha_noisy = test_snr/(torch.mean(noisy_codeword**2) + test_snr)
+        alpha_noisy = test_snr / (1 + test_snr)
         batch_size, *dims = noisy_codeword.shape
         enter_timestep = torch.argmin(abs(alpha_noisy - self.alphas_cumprod)).item()
         iterator = tqdm(reversed(range(0, enter_timestep)), desc='Progressive Generation',
@@ -2567,17 +2569,16 @@ class LatentDiffusionPosteriorJSCC(DDPM):
 
             ts = torch.full((batch_size,), timestep, device=self.device, dtype=torch.long)
             denoised, mean_clean_codeword = self.p_sample(one_step_denoised, c=None, t=ts, return_x0 = True)
-            #re_encoded_codeword = self.first_stage_model.encode(self.first_stage_model.decode(mean_clean_codeword))
-            re_encoded_codeword =  mean_clean_codeword * self.sqrt_alphas_cumprod[enter_timestep] 
-            neg_log_likelihood = F.mse_loss(noisy_codeword_scaled,  re_encoded_codeword, reduction="none").mean(dim=[1,2,3], keepdim=True)
-            nll = neg_log_likelihood.mean()
-            nll.backward()
-            with torch.no_grad():
-                grad_log_likelihood = 0.5 * one_step_denoised.grad /(1.0 - self.alphas_cumprod[enter_timestep])
-                #grad_log_likelihood = torch.autograd.grad(neg_log_likelihood.mean(), one_step_denoised)[0]/(1.0 - self.alphas_cumprod[enter_timestep])
-                one_step_denoised.data = denoised - scale_grad*grad_log_likelihood #/ torch.sqrt(neg_log_likelihood)
-                one_step_denoised.grad.fill_(0.)
+            if True: #scale_grad > 0 or scale_grad < 0:
+                neg_log_likelihood = torch.linalg.norm((noisy_codeword - mean_clean_codeword).flatten(1), dim=1)
+                nll = neg_log_likelihood.mean()
+                nll.backward()
+                with torch.no_grad():
+                    grad_log_likelihood = one_step_denoised.grad #/(1.0 - self.alphas_cumprod[enter_timestep])
+                    #grad_log_likelihood = torch.autograd.grad(neg_log_likelihood.mean(), one_step_denoised)[0]/(1.0 - self.alphas_cumprod[enter_timestep])
+                    one_step_denoised.data = one_step_denoised.data - scale_grad*grad_log_likelihood #/ torch.sqrt(neg_log_likelihood)
+                    one_step_denoised.grad.fill_(0.)
 
-        return one_step_denoised
+        return one_step_denoised, enter_timestep
 
     
