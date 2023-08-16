@@ -6,6 +6,7 @@ from einops import repeat
 from taming.modules.discriminator.model import NLayerDiscriminator, weights_init
 from taming.modules.losses.lpips import LPIPS
 from taming.modules.losses.vqperceptual import hinge_d_loss, vanilla_d_loss
+from ldm.util import log_txt_as_img, exists, default, ismap, isimage, mean_flat, count_params, instantiate_from_config
 
 
 def hinge_d_loss_with_exemplar_weights(logits_real, logits_fake, weights):
@@ -140,12 +141,12 @@ class VQLPIPSWithDiscriminator(nn.Module):
                    "{}/disc_factor".format(split): torch.tensor(disc_factor),
                    "{}/g_loss".format(split): g_loss.detach().mean(),
                    }
-            if predicted_indices is not None:
-                assert self.n_classes is not None
-                with torch.no_grad():
-                    perplexity, cluster_usage = measure_perplexity(predicted_indices, self.n_classes)
-                log[f"{split}/perplexity"] = perplexity
-                log[f"{split}/cluster_usage"] = cluster_usage
+            # if predicted_indices is not None:
+            #     assert self.n_classes is not None
+            #     with torch.no_grad():
+            #         perplexity, cluster_usage = measure_perplexity(predicted_indices, self.n_classes)
+            #     log[f"{split}/perplexity"] = perplexity
+            #     log[f"{split}/cluster_usage"] = cluster_usage
             return loss, log
 
         if optimizer_idx == 1:

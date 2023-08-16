@@ -108,7 +108,7 @@ if __name__=="__main__":
             codewords = ldm_posterior_model.first_stage_model.encode(images)
             signal_power = torch.mean(codewords**2)
             noisy_codeword = codewords + torch.randn_like(codewords)*torch.sqrt(signal_power/test_snr)
-            sampled_codeword = ldm_posterior_model.posterior_sampling(TEST_SNR_DB, noisy_codeword, re_encode = False)
+            sampled_codeword = ldm_posterior_model.posterior_sampling(TEST_SNR_DB, noisy_codeword, signal_power, re_encode = False)
             reconstructed = torch.clamp(ldm_posterior_model.first_stage_model.decode(sampled_codeword), -1.0, 1.0)
             scores = compute_metrics(images, reconstructed)
 

@@ -11,12 +11,12 @@ model:
     image_size: 64
     channels: 3
     denoising_mode: iterative
-    train_encoder: true
-    train_decoder: false
-    train_model: false
-    use_ema: false
     monitor: val/loss_simple_ema
     unet_ckpt: "/home/ashri/latent-diffusion/models/ldm/lsun_beds256/unet.ckpt"
+    train_encoder: true
+    train_decoder: true
+    train_model: true
+    use_ema: true
     unet_config:
       target: ldm.modules.diffusionmodules.openaimodel.UNetModel
       params:
@@ -40,17 +40,23 @@ model:
         - 4
         num_head_channels: 32
     first_stage_config:
-      target: ldm.models.autoencoder.AutoEncoder
+      target: ldm.models.autoencoder.VQModel
       params:
         monitor: "val/rec_loss"
-        checkpoint_path: "models/ldm/lsun_beds256/autoencoder.ckpt"
+        ckpt_path: "models/ldm/lsun_beds256/main.ckpt"
         embed_dim: 3
         n_embed: 8192
         lossconfig:
-          target: torch.nn.MSELoss
+          target: ldm.modules.losses.vqperceptual.VQLPIPSWithDiscriminator
+          params:
+            disc_conditional: false
+            disc_in_channels: 3
+            disc_start: 0
+            disc_weight: 0.75
+            codebook_weight: 1.0
           
         ddconfig:
-          double_z: false
+          double_z: False
           z_channels: 3
           resolution: 256
           in_channels: 3
@@ -64,7 +70,7 @@ model:
 data:
   target: main.DataModuleFromConfig
   params:
-    batch_size: 12
+    batch_size: 8
     num_workers: 4
     wrap: false
     train:

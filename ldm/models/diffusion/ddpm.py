@@ -22,7 +22,7 @@ from pytorch_lightning.utilities.distributed import rank_zero_only
 from ldm.util import log_txt_as_img, exists, default, ismap, isimage, mean_flat, count_params, instantiate_from_config
 from ldm.modules.ema import LitEma
 from ldm.modules.distributions.distributions import normal_kl, DiagonalGaussianDistribution
-from ldm.models.autoencoder import VQModelInterface, IdentityFirstStage, AutoencoderKL, AutoEncoder, VQModel_JSCC
+from ldm.models.autoencoder import VQModelInterface, IdentityFirstStage, AutoencoderKL, AutoEncoder, VQModel_JSCC, VQModel
 from ldm.modules.diffusionmodules.util import make_beta_schedule, extract_into_tensor, noise_like
 from ldm.models.diffusion.ddim import DDIMSampler
 
@@ -310,7 +310,9 @@ class DDPM(pl.LightningModule):
         else:
             raise NotImplementedError(f"Paramterization {self.parameterization} not yet supported")
 
-        loss = self.get_loss(model_out, target, mean=False).mean(dim=[1, 2, 3])
+        alpha = self.alphas_cumprod[t.item()]
+        scale_factor = 0.5*(1 - alpha)/alpha
+        loss = scale_factor * self.get_loss(model_out, target, mean=False).mean(dim=[1, 2, 3])
 
         log_prefix = 'train' if self.training else 'val'
 
@@ -1610,7 +1612,7 @@ class LatentDiffusionPosteriorJSCC(DDPM):
 
     def get_first_stage_encoding(self, encoder_posterior):
 
-        if isinstance(self.first_stage_model, VQModel_JSCC):
+        if isinstance(self.first_stage_model, VQModel_JSCC) or isinstance(self.first_stage_model, VQModel):
             z, _, _ = encoder_posterior
         elif isinstance(encoder_posterior, DiagonalGaussianDistribution):
             z = encoder_posterior.sample()
@@ -1732,6 +1734,7 @@ class LatentDiffusionPosteriorJSCC(DDPM):
         encoder_posterior = self.encode_first_stage(x)
         z = self.get_first_stage_encoding(encoder_posterior)
         embed_loss = encoder_posterior[1]
+        indices = encoder_posterior[-1][-1]
         if self.model.conditioning_key is not None:
             if cond_key is None:
                 cond_key = self.cond_stage_key
@@ -1773,6 +1776,8 @@ class LatentDiffusionPosteriorJSCC(DDPM):
 
         if isinstance(self.first_stage_model, VQModel_JSCC):
             out.append(embed_loss)
+        elif isinstance(self.first_stage_model, VQModel):
+            out.extend([embed_loss, indices])
         else:
             out.append(None)
 
@@ -2134,12 +2139,24 @@ class LatentDiffusionPosteriorJSCC(DDPM):
 
         return loss, loss_dict
 
-    def training_step(self, batch, batch_idx):
+    def training_step(self, batch, batch_idx, optimizer_idx):
 
-        latent, cond, images, reconstruction, embed_loss = self.get_input(batch, self.first_stage_key, return_first_stage_outputs=True)
-        clean_reconstruction_loss = self.first_stage_model.loss(images, reconstruction)
-        loss, loss_dict = self(latent, cond)
+
+        # latent, cond, images, reconstruction = self.get_input(batch, self.first_stage_key, return_first_stage_outputs=True)
+        # clean_reconstruction_loss = self.first_stage_model.loss(images, reconstruction)
+        # loss, loss_dict = self(latent, cond)
+        # loss_dict.update({"train/clean_recon_loss": clean_reconstruction_loss})
+        latent, cond, images, reconstruction, embed_loss, indices = self.get_input(batch, self.first_stage_key, return_first_stage_outputs=True)
+        clean_reconstruction_loss, reconstruction_logs = self.first_stage_model.loss(embed_loss, images, 
+                                                                reconstruction, 
+                                                                optimizer_idx,
+                                                                self.global_step,
+                                                                last_layer = self.first_stage_model.get_last_layer(),
+                                                                split="train",
+                                                                predicted_indices=indices)
+        denoising_loss, loss_dict = self(latent, cond)
         loss_dict.update({"train/clean_recon_loss": clean_reconstruction_loss})
+        loss_dict.update(reconstruction_logs)
 
         if embed_loss is not None:
             loss_dict.update({"train/embed_loss": embed_loss})
@@ -2153,29 +2170,52 @@ class LatentDiffusionPosteriorJSCC(DDPM):
         if self.use_scheduler:
             lr = self.optimizers().param_groups[0]['lr']
             self.log('lr_abs', lr, prog_bar=True, logger=True, on_step=True, on_epoch=False)
-
-        if embed_loss is not None:
-            return loss + clean_reconstruction_loss + embed_loss
         
-        return loss + clean_reconstruction_loss
+        if embed_loss is not None:
+            return 0.5*denoising_loss + clean_reconstruction_loss + embed_loss
+        
+        return denoising_loss + clean_reconstruction_loss
 
 
     @torch.no_grad()
     def validation_step(self, batch, batch_idx):
 
-        latent, cond, images, reconstruction, embed_loss = self.get_input(batch, self.first_stage_key, return_first_stage_outputs=True)
-        clean_reconstruction_loss = self.first_stage_model.loss(images, reconstruction)
+        # import pdb; pdb.set_trace()
+        # torch.save()
+        # latent, cond, images, reconstruction = self.get_input(batch, self.first_stage_key, return_first_stage_outputs=True)
+        # clean_reconstruction_loss = self.first_stage_model.loss(images, reconstruction)
+        # _, loss_dict_no_ema = self(latent, cond)
+        # loss_dict_no_ema.update({"val/clean_recon_loss": clean_reconstruction_loss})
+
+        latent, cond, images, reconstruction, embed_loss, indices = self.get_input(batch, self.first_stage_key, return_first_stage_outputs=True)
+        clean_reconstruction_loss, reconstruction_logs = self.first_stage_model.loss(embed_loss, images, 
+                                                                reconstruction, 
+                                                                0,
+                                                                self.global_step,
+                                                                last_layer = self.first_stage_model.get_last_layer(),
+                                                                split="train",
+                                                                predicted_indices=indices)
         _, loss_dict_no_ema = self(latent, cond)
         loss_dict_no_ema.update({"val/clean_recon_loss": clean_reconstruction_loss})
+        loss_dict_no_ema.update(reconstruction_logs)
 
         if embed_loss is not None:
             loss_dict_no_ema.update({"val/embed_loss": embed_loss})
 
         with self.ema_scope():
-            latent, cond, images, reconstruction, embed_loss_ema = self.get_input(batch, self.first_stage_key, return_first_stage_outputs=True)
-            clean_reconstruction_loss = self.first_stage_model.loss(images, reconstruction)
+            # latent, cond, images, reconstruction = self.get_input(batch, self.first_stage_key, return_first_stage_outputs=True)
+            # import pdb; pdb.set_trace()
+            latent, cond, images, reconstruction, embed_loss_ema, indices = self.get_input(batch, self.first_stage_key, return_first_stage_outputs=True)
+            clean_reconstruction_loss, reconstruction_logs_ema = self.first_stage_model.loss(embed_loss, images, 
+                                                                reconstruction, 
+                                                                0,
+                                                                self.global_step,
+                                                                last_layer = self.first_stage_model.get_last_layer(),
+                                                                split="train",
+                                                                predicted_indices=indices)
             _, loss_dict_ema = self(latent, cond)
             loss_dict_ema.update({"val/clean_recon_loss": clean_reconstruction_loss})
+            loss_dict_ema.update(reconstruction_logs_ema)
 
             if embed_loss_ema is not None:
                 loss_dict_ema.update({"val/embed_loss": embed_loss_ema})
@@ -2522,20 +2562,52 @@ class LatentDiffusionPosteriorJSCC(DDPM):
         if self.learn_logvar:
             print('Diffusion model optimizing logvar')
             params.append(self.logvar)
-        opt = torch.optim.AdamW(params, lr=lr)
+        
+        if isinstance(self.first_stage_model, VQModel):
+
+            lr_d = lr
+            lr_g = self.first_stage_model.lr_g_factor*lr
+            print("lr_d", lr_d)
+            print("lr_g", lr_g)
+
+            opt_disc = torch.optim.Adam(self.first_stage_model.loss.discriminator.parameters(),
+                                    lr=lr_d, betas=(0.5, 0.9))
+            opt_model = torch.optim.AdamW(params, lr=lr)
+
+            # if self.scheduler_config is not None:
+            #     # scheduler = instantiate_from_config(self.scheduler_config)
+            #     scheduler = torch.nn.optim.StepLR()
+            #     print("Setting up LambdaLR scheduler...")
+            #     scheduler = [
+            #         {
+            #             'scheduler': LambdaLR(opt_model, lr_lambda=scheduler.schedule),
+            #             'interval': 'step',
+            #             'frequency': 1
+            #         },
+            #         {
+            #             'scheduler': LambdaLR(opt_disc, lr_lambda=scheduler.schedule),
+            #             'interval': 'step',
+            #             'frequency': 1
+            #         },
+            #     ]
+            return [opt_model, opt_disc]#, scheduler
+
+        else:
+
+            opt = torch.optim.AdamW(params, lr=lr)
 
 
-            # scheduler = instantiate_from_config(self.scheduler_config)
+                # scheduler = instantiate_from_config(self.scheduler_config)
 
-        # print("Setting up LambdaLR scheduler...")
-        # scheduler = [
-        #     {
-        #         'scheduler': LambdaLR(opt, lr_lambda=schedule_function),
-        #         'interval': 'step',
-        #         'frequency': 1
-        #     }
-        # ]
-        return opt#, scheduler
+            # print("Setting up LambdaLR scheduler...")
+            # scheduler = [
+            #     {
+            #         'scheduler': LambdaLR(opt, lr_lambda=schedule_function),
+            #         'interval': 'step',
+            #         'frequency': 1
+            #     }
+            # ]
+            return opt#, scheduler
 
     @torch.no_grad()
     def to_rgb(self, x):
@@ -2546,33 +2618,42 @@ class LatentDiffusionPosteriorJSCC(DDPM):
         x = 2. * (x - x.min()) / (x.max() - x.min()) - 1.
         return x
     
-    def posterior_sampling(self, test_snr_dB, noisy_codeword, scale_grad = 1.0, verbose = False, re_encode = True):
+    def posterior_sampling(self, test_snr_dB, noisy_codeword, signal_power, scale_grad = 1.0, verbose = False, re_encode = True):
         
         test_snr = 10**(test_snr_dB/10)
         assert test_snr >= self.channel_snr
-        alpha_noisy = (test_snr + 1)/(torch.mean(noisy_codeword**2) + test_snr + 1)
+        
+        # alpha_noisy = (test_snr + 1)/(torch.mean(noisy_codeword**2) + test_snr + 1)
+        alpha_noisy = test_snr/(test_snr + signal_power)
         batch_size, *dims = noisy_codeword.shape
         enter_timestep = torch.argmin(abs(alpha_noisy - self.alphas_cumprod)).item()
         iterator = tqdm(reversed(range(0, enter_timestep)), desc='Progressive Generation',
                         total=enter_timestep) if verbose else reversed(
             range(0, enter_timestep))
-
+        
+        noisy_codeword *= self.sqrt_alphas_cumprod[enter_timestep]
         one_step_denoised = noisy_codeword
 
         assert self.parameterization == "eps"
 
         for timestep in iterator:
+            
 
             ts = torch.full((batch_size,), timestep, device=self.device, dtype=torch.long)
             denoised, mean_clean_codeword = self.p_sample(one_step_denoised, c=None, t=ts, return_x0 = True)
 
             if re_encode is True:
-                re_encoded_codeword = self.first_stage_model.encode(self.first_stage_model.decode(mean_clean_codeword))
-                neg_log_likelihood = 0.5*F.mse_loss(noisy_codeword, re_encoded_codeword, reduction="none").mean(dim=[1,2,3])
+                re_encoded_codeword = self.first_stage_model.encode(self.first_stage_model.decode(mean_clean_codeword))*self.sqrt_alphas_cumprod[enter_timestep]
+                # neg_log_likelihood = 0.5*F.mse_loss(noisy_codeword, re_encoded_codeword, reduction="none").sum(dim=[1,2,3])
             else:
-                neg_log_likelihood = 0.5*F.mse_loss(noisy_codeword, mean_clean_codeword, reduction="none").mean(dim=[1,2,3])
-                
+                re_encoded_codeword = mean_clean_codeword#*self.sqrt_alphas_cumprod[enter_timestep]
+            
+            # neg_log_likelihood = 0.5*F.mse_loss(noisy_codeword/self.sqrt_alphas_cumprod[enter_timestep], re_encoded_codeword, reduction="none").sum(dim=[1,2,3])
+            neg_log_likelihood = torch.norm((noisy_codeword/self.sqrt_alphas_cumprod[enter_timestep] - re_encoded_codeword).flatten(1), p=2, dim=1) 
+            # import pdb; pdb.set_trace()
             grad_log_likelihood = torch.autograd.grad(neg_log_likelihood.mean(), one_step_denoised)[0]/(1.0 - self.alphas_cumprod[enter_timestep])
-            one_step_denoised = denoised - scale_grad*grad_log_likelihood/torch.sqrt(neg_log_likelihood)[:, None, None, None]
+            # import pdb; pdb.set_trace()
+            one_step_denoised = denoised - scale_grad*grad_log_likelihood
+            iterator.set_postfix(nll = neg_log_likelihood.mean().item(), )
 
         return one_step_denoised
