@@ -1,5 +1,5 @@
 model:
-  base_learning_rate: 2.0e-06
+  base_learning_rate: 2.0e-05
   target: ldm.models.diffusion.ddpm.LatentDiffusionPosteriorJSCC
   params:
     linear_start: 0.0015
@@ -12,7 +12,6 @@ model:
     channels: 3
     denoising_mode: iterative
     monitor: val/loss_simple_ema
-    unet_ckpt: "/home/ashri/latent-diffusion/models/ldm/lsun_beds256/unet.ckpt"
     train_encoder: true
     train_decoder: true
     train_model: true
@@ -43,7 +42,6 @@ model:
       target: ldm.models.autoencoder.VQModel
       params:
         monitor: "val/rec_loss"
-        ckpt_path: "models/ldm/lsun_beds256/main.ckpt"
         embed_dim: 3
         n_embed: 8192
         lossconfig:

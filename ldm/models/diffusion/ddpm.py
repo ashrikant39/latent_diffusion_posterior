@@ -310,9 +310,8 @@ class DDPM(pl.LightningModule):
         else:
             raise NotImplementedError(f"Paramterization {self.parameterization} not yet supported")
 
-        alpha = self.alphas_cumprod[t.item()]
-        scale_factor = 0.5*(1 - alpha)/alpha
-        loss = scale_factor * self.get_loss(model_out, target, mean=False).mean(dim=[1, 2, 3])
+        
+        loss = self.get_loss(model_out, target, mean=False).mean(dim=[1, 2, 3])
 
         log_prefix = 'train' if self.training else 'val'
 
@@ -2119,7 +2118,10 @@ class LatentDiffusionPosteriorJSCC(DDPM):
         else:
             raise NotImplementedError()
 
-        loss_simple = self.get_loss(model_output, target, mean=False).mean([1, 2, 3])
+        # import pdb; pdb.set_trace()
+        alpha = self.alphas_cumprod[t[0].item()]
+        scale_factor = 0.5*(1 - alpha)/alpha
+        loss_simple = scale_factor * self.get_loss(model_output, target, mean=False).mean([1, 2, 3])
         loss_dict.update({f'{prefix}/loss_simple': loss_simple.mean()})
 
         logvar_t = self.logvar[t].to(self.device)
