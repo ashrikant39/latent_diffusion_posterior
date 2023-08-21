@@ -97,7 +97,7 @@ class VQLPIPSWithDiscriminator(nn.Module):
 
     def forward(self, codebook_loss, inputs, reconstructions, optimizer_idx,
                 global_step, last_layer=None, cond=None, split="train", predicted_indices=None):
-        if not exists(codebook_loss):
+        if codebook_loss is None:
             codebook_loss = torch.tensor([0.]).to(inputs.device)
         #rec_loss = torch.abs(inputs.contiguous() - reconstructions.contiguous())
         rec_loss = self.pixel_loss(inputs.contiguous(), reconstructions.contiguous())
@@ -110,6 +110,7 @@ class VQLPIPSWithDiscriminator(nn.Module):
         nll_loss = rec_loss
         #nll_loss = torch.sum(nll_loss) / nll_loss.shape[0]
         nll_loss = torch.mean(nll_loss)
+
 
         # now the GAN part
         if optimizer_idx == 0:

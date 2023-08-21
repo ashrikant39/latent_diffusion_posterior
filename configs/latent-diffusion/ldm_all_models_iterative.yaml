@@ -15,7 +15,7 @@ model:
     train_decoder: true
     train_model: true
     monitor: val/loss_simple_ema
-    unet_ckpt: "/home/ashri/latent-diffusion/models/ldm/lsun_beds256/unet.ckpt"
+    #unet_ckpt: "/home/ashri/latent-diffusion/models/ldm/lsun_beds256/unet.ckpt"
     unet_config:
       target: ldm.modules.diffusionmodules.openaimodel.UNetModel
       params:
@@ -39,10 +39,10 @@ model:
         - 4
         num_head_channels: 32
     first_stage_config:
-      target: ldm.models.autoencoder.AutoEncoder
+      target: ldm.models.autoencoder.VQModelInterface
       params:
         monitor: "val/rec_loss"
-        checkpoint_path: "models/ldm/lsun_beds256/autoencoder.ckpt"
+        #checkpoint_path: "models/ldm/lsun_beds256/autoencoder.ckpt"
         embed_dim: 3
         n_embed: 8192
         lossconfig:

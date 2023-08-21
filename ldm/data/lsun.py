@@ -72,7 +72,7 @@ class LSUNChurchesValidation(LSUNBase):
 
 class LSUNBedroomsTrain(LSUNBase):
     def __init__(self, **kwargs):
-        super().__init__(txt_file='/tmpssd/ashri/LSUN/bedrooms_train.txt', data_root='/tmpssd/ashri/LSUN/bedrooms', **kwargs)
+        super().__init__('/tmpssd/ashri/LSUN/bedrooms_train.txt', '/tmpssd/ashri/LSUN/bedrooms')
 
 
 class LSUNBedroomsTrainJSCC(LSUNBase):
@@ -82,8 +82,8 @@ class LSUNBedroomsTrainJSCC(LSUNBase):
 
 class LSUNBedroomsValidation(LSUNBase):
     def __init__(self, flip_p=0.0, **kwargs):
-        super().__init__(txt_file='/tmpssd/ashri/LSUN/bedrooms_val.txt', data_root='/tmpssd/ashri/LSUN/bedrooms',
-                         flip_p=flip_p, **kwargs)
+        super().__init__('/tmpssd/ashri/LSUN/bedrooms_val.txt', '/tmpssd/ashri/LSUN/bedrooms',
+                         flip_p=flip_p)
 
 class LSUNBedroomsValidationJSCC(LSUNBase):
     def __init__(self, flip_p=0.0, **kwargs):

@@ -103,6 +103,7 @@ class VQModel(pl.LightningModule):
         print(f"Restored from {path} with {len(missing)} missing and {len(unexpected)} unexpected keys")
         if len(missing) > 0:
             print(f"Missing Keys: {missing}")
+        if len(unexpected) > 0:
             print(f"Unexpected Keys: {unexpected}")
 
     def on_train_batch_end(self, *args, **kwargs):
@@ -114,6 +115,7 @@ class VQModel(pl.LightningModule):
         h = self.quant_conv(h)
         quant, emb_loss, info = self.quantize(h)
         return quant, emb_loss, info
+        #return h, 0.0, None
 
     def encode_to_prequant(self, x):
         h = self.encoder(x)

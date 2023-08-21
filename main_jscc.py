@@ -764,7 +764,8 @@ if __name__ == "__main__":
         if opt.train:
             try:
                 trainer.fit(model, data)
-            except Exception:
+            except Exception as e:
+                print(e)
                 melk()
                 raise
         if not opt.no_test and not trainer.interrupted:

@@ -209,7 +209,7 @@ class DDIMSampler(object):
 
 class DDIMSamplerJSCC(DDIMSampler):
 
-    def ddim_sampling(self, cond, shape, test_snr, scale_grad=1.0,
+    def ddim_sampling(self, cond, shape, test_snr, scale_grad=1.0, re_encode=False,
                       x_T=None, ddim_use_original_steps=False,
                       callback=None, timesteps=None, quantize_denoised=False,
                       mask=None, x0=None, img_callback=None, log_every_t=100,
@@ -225,7 +225,7 @@ class DDIMSamplerJSCC(DDIMSampler):
 
 
             alpha_noisy = test_snr / (1 + test_snr)
-            enter_timestep = torch.argmin(abs(alpha_noisy - self.ddim_alphas)).item()
+            enter_timestep = max(1, torch.argmin(abs(alpha_noisy - self.ddim_alphas)).item())
             img = img * torch.sqrt(self.ddim_alphas[enter_timestep])
 
             if timesteps is None:
@@ -238,7 +238,7 @@ class DDIMSamplerJSCC(DDIMSampler):
             intermediates = {'x_inter': [img], 'pred_x0': [img]}
             time_range = reversed(range(0,timesteps)) if ddim_use_original_steps else np.flip(timesteps)
             total_steps = timesteps if ddim_use_original_steps else timesteps.shape[0]
-            print(f"Running DDIM Sampling with {total_steps} timesteps")
+            #print(f"Running DDIM Sampling with {total_steps} timesteps")
 
             iterator = time_range #tqdm(time_range, desc='DDIM Sampler', total=total_steps)
 
@@ -259,10 +259,16 @@ class DDIMSamplerJSCC(DDIMSampler):
                                       unconditional_guidance_scale=unconditional_guidance_scale,
                                       unconditional_conditioning=unconditional_conditioning)
             img_prior, pred_x0 = outs
-            if scale_grad > 0:
-                nll = F.mse_loss(pred_x0, x_T)
-                grad_log_likelihood = torch.autograd.grad(nll, img)[0] * self.ddim_alphas[enter_timestep] / (1.0 - self.ddim_alphas[enter_timestep])
-                img = img_prior + scale_grad * grad_log_likelihood
+            
+            # Likelihood Part 
+            if True: #scale_grad > 0 or scale_grad < 0:
+                if re_encode:
+                    pred_x0 = self.model.first_stage_model.encode(
+                            self.model.first_stage_model.decode(pred_x0)
+                            )
+                nll = torch.linalg.norm((pred_x0 - x_T).flatten(1), dim=1).mean() 
+                grad_log_likelihood = torch.autograd.grad(nll, img)[0] 
+                img = img_prior - scale_grad * grad_log_likelihood 
             else:
                 img = img_prior
 
@@ -273,7 +279,7 @@ class DDIMSamplerJSCC(DDIMSampler):
                 intermediates['x_inter'].append(img)
                 intermediates['pred_x0'].append(pred_x0)
 
-        return img, intermediates
+        return img, intermediates, total_steps
 
     def p_sample_ddim(self, x, c, t, index, repeat_noise=False, use_original_steps=False, quantize_denoised=False,
                       temperature=1., noise_dropout=0., score_corrector=None, corrector_kwargs=None,
