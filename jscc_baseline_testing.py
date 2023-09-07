@@ -12,6 +12,7 @@ from torchmetrics.functional import multiscale_structural_similarity_index_measu
 from torchvision.datasets import LSUN
 from torch.utils.data import DataLoader, Subset
 from torchvision.transforms import ToTensor, Compose, Resize
+from einops import rearrange
 
 import warnings
 warnings.filterwarnings("ignore")
@@ -96,8 +97,8 @@ if __name__=="__main__":
     parser.add_argument(
         "--num_images",
         type = int,
-        help = "Directory with model logs",
-        default = 100
+        help = "Number of Images for testing",
+        default = 200
     )
 
     parser.add_argument(
@@ -118,6 +119,13 @@ if __name__=="__main__":
     )
 
     parser.add_argument(
+        "--save_dir",
+        type = str,
+        help = "Directory name to save metrics",
+        default = "none"
+    )
+    
+    parser.add_argument(
         "-n",
         "--num_workers",
         type=int,
@@ -132,6 +140,7 @@ if __name__=="__main__":
     TEST_SNR = args.test_snr
     BATCH_SIZE = args.batch_size
     NUM_WORKERS = args.num_workers
+    SAVE_DIR = args.save_dir
     DEVICE = "cuda"
 
     # import pdb; pdb.set_trace()
@@ -152,11 +161,12 @@ if __name__=="__main__":
     )
 
     # import pdb; pdb.set_trace()
-    dataset = LSUN(root = "val_data_lsun/lsun_beds",
-                    classes = ["bedroom_val"],
-                    transform = data_transform)
+    # dataset = LSUN(root = "val_data_lsun/lsun_beds",
+    #                 classes = ["bedroom_val"],
+    #                 transform = data_transform)
     
-    subset = Subset(dataset, range(NUM_IMAGES))
+    main_dataset = instantiate_from_config(config.data.params.validation)
+    dataset = Subset(main_dataset, range(NUM_IMAGES))
     dataloader = DataLoader(dataset, batch_size= BATCH_SIZE, num_workers = NUM_WORKERS)
 
     metric_dict = {
@@ -166,23 +176,33 @@ if __name__=="__main__":
         "LPIPS_VGG": 0.0,
     }
 
-    total_examples = subset.__len__()
+    total_examples = dataset.__len__()
 
-    for images, _ in tqdm(dataloader):
+    print(f"CHANNEL SNR: {TEST_SNR}")
 
+    progress_bar = tqdm(dataloader)
+    
+    for image_dict in progress_bar:
+
+        images = rearrange(image_dict["image"].cuda(), 'b h w c -> b c h w')
         images = images.to(DEVICE)
-        jscc_model = jscc_model.to(DEVICE)
 
         reconstructed = deep_jscc_testing(jscc_model, images, TEST_SNR)
         scores = compute_metrics(images, reconstructed)
-
+        
+        progress_bar.set_postfix(psnr=scores[0]/BATCH_SIZE)
+        
         for idx, key in enumerate(metric_dict.keys()):
             metric_dict[key] += scores[idx]
     
     for key in metric_dict.keys():
         metric_dict[key] = metric_dict[key]/total_examples
     
-    filename = f"post_exp_metrics/baseline_expts/jscc_baseline_scores_{int(TEST_SNR)}_dict.pkl"
+    save_dir = os.path.join(LOGDIR, SAVE_DIR)
+    
+    if os.path.isdir(save_dir) is False:
+        os.mkdir(save_dir)
+    filename = os.path.join(save_dir, f"test_images_{NUM_IMAGES}_{int(TEST_SNR)}_scores.pkl")
 
     with open(filename, "wb") as fp:
         pickle.dump(metric_dict, fp)

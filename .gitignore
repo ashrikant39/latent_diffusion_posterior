@@ -8,16 +8,14 @@ data/lsun/
 **/*.ckpt
 _cache_*
 *.png
-*.sh
 src/
 job_logs/
 *.ipynb*
 eta_sweeps/
 post_exp_metrics/
 post_exp_metrics_direct/
-*.sh
 updated_env.yaml
-*.txt
 test_models.py
 .nfs*
 data/
+wget-log

@@ -80,6 +80,13 @@ def get_parser(**parser_kwargs):
         default=""
     )
     parser.add_argument(
+        "--l_simple_weight",
+        type=float,
+        help="Weight of Denoising Loss",
+        default=1.0
+    )
+
+    parser.add_argument(
         "-t",
         "--train",
         type=str2bool,
@@ -553,6 +560,7 @@ if __name__ == "__main__":
         
 
         config.model.params.channel_snr_dB = opt.channel_snr
+        config.model.params.l_simple_weight = opt.l_simple_weight
         config.data.params.train.params.txt_file = opt.train_txt_path
         config.data.params.train.params.data_root =  opt.root_dir
         config.data.params.validation.params.txt_file = opt.val_txt_path 

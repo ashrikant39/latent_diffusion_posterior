@@ -1,0 +1,14 @@
+1. LDM without Finetuning + With finetuning -> DDIM
+2. Posterior with DDIM , Done ->"Finetuning with DDIM" 
+3. l_simple_weight-> 0.1 or 0.01
+
+
+//
+
+Plots:
+Fix the sampling algorithm and compare the models.
+(Pre-trained)
+1. LDM with DDPM 
+2. Posterior with DDPM
+
+DDIM Sampling Results

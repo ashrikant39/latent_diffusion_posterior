@@ -156,7 +156,7 @@ class VQModel(pl.LightningModule):
             x = x.detach()
         return x
 
-    def training_step(self, batch, batch_idx, optimizer_idx):
+    def training_step(self, batch, batch_idx, optimizer_idx=0):
         # https://github.com/pytorch/pytorch/issues/37142
         # try not to fool the heuristics
         x = self.get_input(batch, self.image_key)
@@ -178,7 +178,7 @@ class VQModel(pl.LightningModule):
             self.log_dict(log_dict_disc, prog_bar=False, logger=True, on_step=True, on_epoch=True)
             return discloss
 
-    def validation_step(self, batch, batch_idx):
+    def validation_step(self, batch, batch_idx, optimizer_idx=0):
         log_dict = self._validation_step(batch, batch_idx)
         with self.ema_scope():
             log_dict_ema = self._validation_step(batch, batch_idx, suffix="_ema")

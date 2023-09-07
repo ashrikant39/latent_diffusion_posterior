@@ -1,0 +1,5 @@
+100 steps
+5 dB 
+betas 
+lr for all models
+pretrained 

@@ -65,6 +65,7 @@ model:
           attn_resolutions: []
           dropout: 0.0
     cond_stage_config: __is_unconditional__
+    ae_lr: 1.0e-05
 data:
   target: main.DataModuleFromConfig
   params:
@@ -86,7 +87,7 @@ lightning:
     image_logger:
       target: main.ImageLogger
       params:
-        batch_frequency: 5000
+        batch_frequency: 500
         max_images: 8
         increase_log_steps: False
 

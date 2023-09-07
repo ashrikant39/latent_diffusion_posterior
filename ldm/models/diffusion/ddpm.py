@@ -190,7 +190,7 @@ class DDPM(pl.LightningModule):
                     print(f"{context}: Restored training weights")
 
     def init_from_ckpt(self, path, ignore_keys=list(), only_model=False):
-        sd = torch.load(path, map_location="cpu")
+        sd = torch.load(path, map_location="cpu")["state_dict"]
         if "state_dict" in list(sd.keys()):
             sd = sd["state_dict"]
         keys = list(sd.keys())
@@ -362,7 +362,7 @@ class DDPM(pl.LightningModule):
         return loss
 
     @torch.no_grad()
-    def validation_step(self, batch, batch_idx):
+    def validation_step(self, batch, batch_idx, optimizer_idx=0):
         _, loss_dict_no_ema = self.shared_step(batch)
         with self.ema_scope():
             _, loss_dict_ema = self.shared_step(batch)
@@ -1476,6 +1476,7 @@ class LatentDiffusionPosteriorJSCC(DDPM):
                  cond_stage_forward=None,
                  conditioning_key=None,
                  scale_factor=1.0,
+                 ae_lr = 1e-3,
                  scale_by_std=False,
                  *args, **kwargs):
 
@@ -1530,6 +1531,8 @@ class LatentDiffusionPosteriorJSCC(DDPM):
         if ckpt_path is not None:
             self.init_from_ckpt(ckpt_path, ignore_keys)
             self.restarted_from_ckpt = True
+        
+        self.first_stage_model.learning_rate = ae_lr
 
     def make_cond_schedule(self, ):
         self.cond_ids = torch.full(size=(self.num_timesteps,), fill_value=self.num_timesteps - 1, dtype=torch.long)
@@ -2141,7 +2144,7 @@ class LatentDiffusionPosteriorJSCC(DDPM):
 
         return loss, loss_dict
 
-    def training_step(self, batch, batch_idx, optimizer_idx):
+    def training_step(self, batch, batch_idx, optimizer_idx=0):
 
 
         # latent, cond, images, reconstruction = self.get_input(batch, self.first_stage_key, return_first_stage_outputs=True)
@@ -2180,7 +2183,7 @@ class LatentDiffusionPosteriorJSCC(DDPM):
 
 
     @torch.no_grad()
-    def validation_step(self, batch, batch_idx):
+    def validation_step(self, batch, batch_idx, optimizer_idx=0):
 
         # import pdb; pdb.set_trace()
         # torch.save()
@@ -2451,11 +2454,9 @@ class LatentDiffusionPosteriorJSCC(DDPM):
         use_ddim = ddim_steps is not None
 
         log = dict()
-        z, c, x, xrec, xc = self.get_input(batch, self.first_stage_key,
-                                           return_first_stage_outputs=True,
-                                           force_c_encode=True,
-                                           return_original_cond=True,
-                                           bs=N)
+        # latent, cond, images, reconstruction, embed_loss, indices
+        z, c, x, xrec, *rest = self.get_input(batch, self.first_stage_key,
+                                              return_first_stage_outputs=True)
         N = min(x.shape[0], N)
         n_row = min(x.shape[0], n_row)
         log["inputs"] = x
@@ -2555,26 +2556,68 @@ class LatentDiffusionPosteriorJSCC(DDPM):
         return log
 
     def configure_optimizers(self):
+
         lr = self.learning_rate
-        total_params = list(self.model.parameters()) + list(self.first_stage_model.parameters())
-        params = [p for p in total_params if p.requires_grad is True]
-        if self.cond_stage_trainable:
-            print(f"{self.__class__.__name__}: Also optimizing conditioner params!")
-            params = params + list(self.cond_stage_model.parameters())
-        if self.learn_logvar:
-            print('Diffusion model optimizing logvar')
-            params.append(self.logvar)
-        
+        param_groups = [
+            {
+                "params": [param for param in self.model.parameters() if param.requires_grad is True], 
+                "lr": self.learning_rate,
+                "betas": (0.9, 0.99)
+
+            },
+
+            {
+                "params": ([param for param in self.first_stage_model.encoder.parameters() if param.requires_grad is True] + \
+                    [param for param in self.first_stage_model.encoder.parameters() if param.requires_grad is True] + \
+                    [param for param in self.first_stage_model.decoder.parameters() if param.requires_grad is True] + \
+                    [param for param in self.first_stage_model.quantize.parameters() if param.requires_grad is True] + \
+                    [param for param in self.first_stage_model.quant_conv.parameters() if param.requires_grad is True] + \
+                    [param for param in self.first_stage_model.post_quant_conv.parameters() if param.requires_grad is True] ),
+                "lr": self.first_stage_model.learning_rate,
+                "betas": (0.9, 0.99)
+            }
+
+            ]
+
         if isinstance(self.first_stage_model, VQModel):
 
-            lr_d = lr
-            lr_g = self.first_stage_model.lr_g_factor*lr
-            print("lr_d", lr_d)
-            print("lr_g", lr_g)
+            param_groups.append(
+                {
+                    "params": self.first_stage_model.loss.discriminator.parameters(),
+                    "lr": self.first_stage_model.lr_g_factor*lr,
+                    "betas": (0.9, 0.99)
+                }
+            )
+        
+        optimizer = torch.optim.AdamW(param_groups)
+        scheduler = [
+                    {
+                        'scheduler': LambdaLR(optimizer, lr_lambda=schedule_function),
+                        'interval': 'step',
+                        'frequency': 1
+                    }
+        ]
+        return [optimizer], scheduler
+        # total_params = list(self.model.parameters()) + list(self.first_stage_model.parameters())
+        # params = [p for p in total_params if p.requires_grad is True]
+        # if self.cond_stage_trainable:
+        #     print(f"{self.__class__.__name__}: Also optimizing conditioner params!")
+        #     params = params + list(self.cond_stage_model.parameters())
+        # if self.learn_logvar:
+        #     print('Diffusion model optimizing logvar')
+        #     params.append(self.logvar)
+        
+        # if isinstance(self.first_stage_model, VQModel):
 
-            opt_disc = torch.optim.Adam(self.first_stage_model.loss.discriminator.parameters(),
-                                    lr=lr_d, betas=(0.5, 0.9))
-            opt_model = torch.optim.AdamW(params, lr=lr)
+        #     lr_d = lr
+        #     lr_g = self.first_stage_model.lr_g_factor*lr
+        #     print("lr_d", lr_d)
+        #     print("lr_g", lr_g)
+            
+
+        #     opt_disc = torch.optim.Adam(self.first_stage_model.loss.discriminator.parameters(),
+        #                             lr=lr_d, betas=(0.5, 0.9))
+        #     opt_model = torch.optim.AdamW(params, lr=lr)
 
             # if self.scheduler_config is not None:
             #     # scheduler = instantiate_from_config(self.scheduler_config)
@@ -2592,24 +2635,24 @@ class LatentDiffusionPosteriorJSCC(DDPM):
             #             'frequency': 1
             #         },
             #     ]
-            return [opt_model, opt_disc]#, scheduler
+        #     return [opt_model, opt_disc]#, scheduler
 
-        else:
+        # else:
 
-            opt = torch.optim.AdamW(params, lr=lr)
+        #     opt = torch.optim.AdamW(params, lr=lr)
 
 
-                # scheduler = instantiate_from_config(self.scheduler_config)
+        #         # scheduler = instantiate_from_config(self.scheduler_config)
 
-            # print("Setting up LambdaLR scheduler...")
-            # scheduler = [
-            #     {
-            #         'scheduler': LambdaLR(opt, lr_lambda=schedule_function),
-            #         'interval': 'step',
-            #         'frequency': 1
-            #     }
-            # ]
-            return opt#, scheduler
+        #     # print("Setting up LambdaLR scheduler...")
+        #     # scheduler = [
+        #     #     {
+        #     #         'scheduler': LambdaLR(opt, lr_lambda=schedule_function),
+        #     #         'interval': 'step',
+        #     #         'frequency': 1
+        #     #     }
+        #     # ]
+        #     return opt#, scheduler
 
     @torch.no_grad()
     def to_rgb(self, x):
@@ -2656,6 +2699,6 @@ class LatentDiffusionPosteriorJSCC(DDPM):
             grad_log_likelihood = torch.autograd.grad(neg_log_likelihood.mean(), one_step_denoised)[0]/(1.0 - self.alphas_cumprod[enter_timestep])
             # import pdb; pdb.set_trace()
             one_step_denoised = denoised - scale_grad*grad_log_likelihood
-            iterator.set_postfix(nll = neg_log_likelihood.mean().item(), )
+            # iterator.set_postfix(nll = neg_log_likelihood.mean().item(), )
 
         return one_step_denoised
